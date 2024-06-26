@@ -134,16 +134,6 @@ protected:
         u = uv.x();
         v = uv.y();
     }
-
-	// Ref: ver.2020
-    Ray randomRay(int axis= -1, long long int seed=0) const override {
-        float r1 = myRandom(axis, seed), r2 = myRandom(axis, seed);
-        if (r1 + r2 > 1) {
-            r1 = 1 - r1;
-            r2 = 1 - r2;
-        }
-        return Ray(r1 * b + r2 * c + (1 - r1 - r2) * a, diffDir(normal, axis, seed));
-    }
 };
 
 #endif 

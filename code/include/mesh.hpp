@@ -151,15 +151,22 @@ public:
     };
 
     std::vector<Object3D *> triangles;
-    // KD-tree 与 包围盒加速求交
-    bool intersect(const Ray &ray, Hit &hit, float tmin) override {
-        float t;  // 与包围盒相交的 t
-        // 若与包围盒无交，直接返回 false
-        if (!aabb.intersect(ray, t)) return false;
-        // 若与包围盒的交点不如当前交点近，也返回 false
-        if (t > hit.getT()) return false;
-        // KD-tree 加速求交
-        return kdTree->intersect(ray, hit);
+    // // KD-tree 与 包围盒加速求交
+    // bool intersect(const Ray &ray, Hit &hit, float tmin) override {
+    //     float t;  // 与包围盒相交的 t
+    //     // 若与包围盒无交，直接返回 false
+    //     if (!aabb.intersect(ray, t)) return false;
+    //     // 若与包围盒的交点不如当前交点近，也返回 false
+    //     if (t > hit.getT()) return false;
+    //     // KD-tree 加速求交
+    //     return kdTree->intersect(ray, hit);
+    // }
+
+    // 顺序遍历求交
+    bool intersect (const Ray &ray, Hit &hit, float tmin) override {
+        bool flag = false;
+        for (auto triangle : triangles) flag |= triangle->intersect(ray, hit, TMIN);
+        return flag;
     }
 
     // 顺序遍历求交
@@ -175,10 +182,6 @@ public:
         return (aabb.bounds[0] + aabb.bounds[1]) / 2;
     }
     vector<Object3D *> getFaces() override { return {(Object3D *)this}; }
-    Ray randomRay(int axis=-1, long long int seed=0) const override {
-        int trig = myRandom(axis, seed) * triangles.size();
-        return triangles[trig]->randomRay(axis, seed);
-    }
 
     // TODO: 待删
     std::vector<Vector3f> v;

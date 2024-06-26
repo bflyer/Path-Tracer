@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-SAMPLES=5
+SAMPLES=15
 METHOD=pt
 cmake -B build
 cmake --build build

@@ -31,7 +31,7 @@ public:
     // }
 
     // 求最近交点
-    bool intersect(const Ray &r, Hit &h, float tmin) {
+    bool intersect(const Ray &r, Hit &h, float tmin) override {
         bool flag = false;
         for (auto obj : objList)
             if (obj) flag |= obj->intersect(r, h, tmin);

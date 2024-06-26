@@ -87,21 +87,6 @@ public:
             .normalized();
     }
 
-    // Ref: ver.2020
-    Ray randomRay(int axis=-1, long long int seed=0) const override {
-        float u = 2 * myRandom(axis, seed) - 1, v = 2 * myRandom(axis, seed) - 1;
-        float r2 = u * u + v * v;
-        while(r2 >= 1) {
-            ++seed;
-            u = 2 * myRandom(axis, seed) - 1;
-            v = 2 * myRandom(axis, seed) - 1;
-            r2 = u * u + v * v;
-        }
-        Vector3f dir(2*u*sqrtf(1-r2), 2*v*sqrt(1-r2),1-2*r2);
-        dir.normalize();
-        return Ray(ballCenter + radius * dir, dir);
-    }
-
     Vector3f min() const override { return ballCenter - radius; }
     Vector3f max() const override { return ballCenter + radius; }
     Vector3f center() const override { return ballCenter; }
