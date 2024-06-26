@@ -120,6 +120,7 @@ public:
         return diffuseColor;
     }
 
+    Vector3f getSpecular() const { return specularColor; }
     Vector3f getEmission() const { return emission; }
     Vector3f getType() const { return type; }
     float getRefractRate() const { return refractRate; }

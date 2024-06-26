@@ -29,59 +29,78 @@ static Vector3f wtColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
     // 如果深度超过阈值或者不透明度过小，则返回
     if (++depth > TRACE_DEPTH || opacity.max() < OPACITY_THRESHOLD) 
         return color;
+
     Hit hit;
     // 如果没有交点，直接返回背景色
     if (!group->intersect(ray, hit, TMIN)) {
-        color = sceneParser.getBackgroundColor();
+        color += sceneParser.getBackgroundColor();
         return color;
     }
 
-    // 交点坐标
+    // 交点属性
     Vector3f hitPos(ray.getOrigin() + ray.getDirection() * hit.getT());
     Material* material = hit.getMaterial();
     Vector3f N(hit.getNormal());
+    Vector3f unitDir(ray.getDirection().normalized());
 
-    // Emission
-    color += material->getEmission() * opacity;
+    // 1. 将颜色初始化为 ambient color（环境光），此处只考虑是否为光源
+    color += material->getEmission();
+
+    // 2. 计算每个光源对该点的贡献
+    for (int li = 0; li < sceneParser.getNumLights(); li++) {
+        Light* light = sceneParser.getLight(li);
+        Vector3f L, lightColor;
+        // 获得光照强度
+        light->getIllumination(ray.pointAtParameter(hit.getT()), L, lightColor);
+        // 计算局部光强
+        color += hit.getMaterial()->Shade(ray, hit, L, lightColor);
+    }
+
     // TODO: 修改为 hit.getColor()，并修改物体类
+    // 不透明度衰减
     opacity = opacity * material->getDiffuseColor();
-    float type = RAND2;
-    // Diffuse
-    if (type <= material->getType().x()) {
-        Vector3f newDir = diffDir(N);
+    
+    // 3.A 若该表面是反射面(Reflection)
+    if (material->getType().y() == 1) {
+        // TODO: r2 =?= r1 + 2 * N 
+        float cosine = Vector3f::dot(unitDir, N);
+        Vector3f newDir = (ray.direction - N * (cosine * 2)).normalized();
+        // color += material->getSpecular() * wtColor(Ray(hitPos, newDir), sceneParser, depth);
         color += wtColor(Ray(hitPos, newDir), sceneParser, depth);
     } 
-    if (depth > 1) {
-        // Reflection
-        if (type <= material->getType().x() + material->getType().y()) {
-            // TODO: r2 =?= r1 + 2 * N 
+    // 3.B 若该表面是透射面(Transmission)
+    else if (material->getType().z() > 0) {
+        // 折射率
+        float n = material->getRefractRate();
+        // 入射角余弦值
+        float cos1 = Vector3f::dot(unitDir, N);
+        // 如果光线来自物体内部，将法线反向
+        if (cos1 > 0) {
+            N.negate();
+        }
+        // 相对折射率
+        n = 1 / n;    
+        // 折射角余弦值
+        float cos2 = sqrt(1 - n * n * (1 - cos1 * cos1));
+        float R0 = ((1.0 - n) * (1.0 - n)) / ((1.0 + n) * (1.0 + n));
+        float Rprob = R0 + (1.0 - R0) * pow((1.0 - cos1), 5.0);  // 反射概率（Schlick-approximation）
+        
+        Vector3f newDir;
+        // 非全反射，粗略地只考虑折射
+        // TODO：改成 R.R.
+        if (cos2 > 0) {
+            newDir = ((-n) * unitDir + (n * Vector3f::dot(unitDir, N) - cos2) * N).normalized();
+            color += wtColor(Ray(hitPos, newDir), sceneParser, depth);
+        }
+        // 全反射
+        else {
             float cosine = Vector3f::dot(ray.direction, N);
-            Vector3f newDir = (ray.direction - N * (cosine * 2)).normalized();
+            newDir = (ray.direction - N * (cosine * 2)).normalized();
+            // color += material->getSpecular() * wtColor(Ray(hitPos, newDir), sceneParser, depth);
             color += wtColor(Ray(hitPos, newDir), sceneParser, depth);
-        } 
-        // Transmission
-        if (material->getType().z() > 0) {
-            // TODO: 计算折射光线
-            float n = material->getRefractRate();
-            float R0 = ((1.0 - n) * (1.0 - n)) / ((1.0 + n) * (1.0 + n));
-            // 如果光线来自物体内部，将光线反向
-            if (Vector3f::dot(N, ray.direction) > 0) 
-                N.negate();
-            n = 1 / n;
-            float cos1 = -Vector3f::dot(ray.direction, N);   // 入射角 cosine
-            float cos2 = 1.0 - n * n * (1.0 - cos1 * cos1);  // 折射出射角 cosine
-            float Rprob = R0 + (1.0 - R0) * pow((1.0 - cos1), 5.0);  // 反射概率（Schlick-approximation）
-            
-            Vector3f newDir;
-            // refraction
-            if (cos2 > 0 && RAND2 > Rprob) 
-                newDir = ((ray.direction * n) + (N * (n * cos1 - sqrt(cos2)))).normalized();
-            // total internal reflection
-            else
-                newDir = ray.direction + N * (cos1 * 2);
-            color += wtColor(Ray(hitPos, newDir), sceneParser, depth);
-        } 
+        }
     }
+    // 4. 返回颜色
     return color;
 }
 
