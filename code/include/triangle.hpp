@@ -75,7 +75,7 @@ public:
 
 	// 法三：叉乘判断法
 	// Ref: ver.2020
-	bool intersect(const Ray& ray, Hit& hit, float tmin) override {
+	bool intersect(const Ray& ray, Hit& hit, double tmin) override {
         Vector3f o(ray.getOrigin()), dir(ray.getDirection());
 		// 根据叉乘判断是否在三角形内有交
         Vector3f v0v1 = b - a;
@@ -92,7 +92,7 @@ public:
         Vector3f qvec = Vector3f::cross(tvec, v0v1);
         float v = Vector3f::dot(dir, qvec) * invDet;
         if (v < 0 || u + v > 1) return false;
-        float t = Vector3f::dot(v0v2, qvec) * invDet;
+        double t = Vector3f::dot(v0v2, qvec) * invDet;
         if (t <= tmin || t > hit.getT()) return false;
 
 		// 真正有交

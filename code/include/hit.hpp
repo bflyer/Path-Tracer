@@ -23,7 +23,7 @@ public:
             dir(Vector3f::ZERO),
             p(Vector3f::ZERO) {}
 
-    Hit(float _t, Material *m, const Vector3f &n)
+    Hit(double _t, Material *m, const Vector3f &n)
         : material(m),
             t(_t),
             r2(INIT_RADIUS),
@@ -50,7 +50,7 @@ public:
     // destructor
     ~Hit() = default;
 
-    float getT() const {
+    double getT() const {
         return t;
     }
 
@@ -59,7 +59,7 @@ public:
     const Vector3f &getNormal() const { return normal; }
     const Vector3f &getColor() const { return color; }
 
-    void set(float _t, Material *m, const Vector3f &n, const Vector3f &c,
+    void set(double _t, Material *m, const Vector3f &n, const Vector3f &c,
              const Vector3f &_p) {
         t = _t;
         material = m;
@@ -69,7 +69,8 @@ public:
     }
 
 private:
-    float t, r2;                // 表示交点到光线起点的距离
+    double t;               // 表示交点到光线起点的距离
+    float r2;                
     Material *material;     // 交点处的材质属性
     Vector3f normal;        // 交点处的法线
     Vector3f color, flux, fluxLight, attenuation;  // 颜色、光通量、光源发出的光通量，光强衰减因子

@@ -29,7 +29,7 @@ Materials {
         texture texture/sun.jpg
     }
     Material { 
-        color 0.6 1 0.6 
+        diffuseColor 0.6 1 0.6 
         type 1 0 0
         refractRate 0.6
         texture texture/jupyter.png
@@ -54,29 +54,29 @@ Materials {
     }
 
     Material { 
-        diffusecolor 0.5 0.5 0.5
+        diffuseColor 0.5 0.5 0.5
         type 1 0 0
     }
     Material { 
-        diffusecolor 1 1 1
+        diffuseColor 1 1 1
         type 0 1 0
         emission 1 1 1
     }
     Material { 
-        diffusecolor 1 1 1
+        diffuseColor 1 1 1
         type 0 1 0
         emission 10 10 10
     }
     Material { 
-        diffusecolor 1 1 1 
+        diffuseColor 1 1 1 
         type 0 1 0
     }
     Material { 
-        diffusecolor 0.25 0.25 0.75 
+        diffuseColor 0.25 0.25 0.75 
         type 0.5 0.5 0
     }
     Material { 
-        diffusecolor 0.75 0.25 0.25 
+        diffuseColor 0.75 0.25 0.25 
         type 0.7 0.3 0
     }
 }

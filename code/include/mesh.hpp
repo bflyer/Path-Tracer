@@ -152,8 +152,8 @@ public:
 
     std::vector<Object3D *> triangles;
     // KD-tree 与 包围盒加速求交
-    bool intersect(const Ray &ray, Hit &hit, float tmin) override {
-        float t;  // 与包围盒相交的 t
+    bool intersect(const Ray &ray, Hit &hit, double tmin) override {
+        double t;  // 与包围盒相交的 t
         // 若与包围盒无交，直接返回 false
         if (!aabb.intersect(ray, t)) return false;
         // 若与包围盒的交点不如当前交点近，也返回 false

@@ -15,13 +15,13 @@ public:
 
     ~Sphere() override = default;
 
-    bool intersect(const Ray &r, Hit &h, float tmin) override {
+    bool intersect(const Ray &r, Hit &h, double tmin) override {
         // 1. 计算由光源指向球心的向量 l
         Vector3f o(r.getOrigin()), dir(r.getDirection().normalized());
         Vector3f l(ballCenter - o);
 
         // 2. 计算【球心】到【光线所在直线】的投影点（垂足）到光线起点的距离 foot
-        float foot = Vector3f::dot(l, dir);
+        double foot = Vector3f::dot(l, dir);
 
         // 3. 判断光源是否位于球体内部
         bool position;  // false 表示合法内部/表面， true 表示合法外部
@@ -43,17 +43,17 @@ public:
         }
 
         // 4. 计算【球心】到【光线所在直线】的距离的平方 d2
-        float d2 = l.squaredLength() - foot * foot;
+        double d2 = l.squaredLength() - foot * foot;
         // 若光源在球体外部且和视线方向同侧，但球心距离视线超过半径，则不相交
         if (d2 > radius * radius && position) {
             return false;
         }
 
         // 5. 计算【投影点】到【光线与球面的交点】的距离 delta
-        float delta = sqrt(radius * radius - d2);
+        double delta = sqrt(radius * radius - d2);
 
         // 6. 求解光线与球面的交点
-        float t = position ? foot - delta : foot + delta;
+        double t = position ? foot - delta : foot + delta;
         if (t < tmin || t >= h.getT()) {
             return false;
         } else {

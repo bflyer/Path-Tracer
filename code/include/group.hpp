@@ -26,12 +26,12 @@ public:
     ~Group() override {}
 
     // // KD-Tree + 包围盒加速求最近交点
-    // bool intersect(const Ray &r, Hit &h, float tmin) override {
+    // bool intersect(const Ray &r, Hit &h, double tmin) override {
     //     return kdTree->intersect(r, h, TMIN);
     // }
 
     // 求最近交点
-    bool intersect(const Ray &r, Hit &h, float tmin) override {
+    bool intersect(const Ray &r, Hit &h, double tmin) override {
         bool flag = false;
         for (auto obj : objList)
             if (obj) flag |= obj->intersect(r, h, tmin);

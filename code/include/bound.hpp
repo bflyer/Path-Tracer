@@ -32,11 +32,11 @@ public:
         }
     }
     
-    bool intersect(const Ray &r, float &t_min) {
+    bool intersect(const Ray &r, double &t_min) {
         Vector3f o(r.getOrigin()), invdir(1 / r.getDirection());
         Vector3f t0 = (bounds[0] - o) * invdir;
         Vector3f t1 = (bounds[1] - o) * invdir;
-        float tmin = INF, tmax = -INF;
+        double tmin = INF, tmax = -INF;
         if (t0.x() < t1.x()) {
             tmin = t0.x();
             tmax = t1.x();
