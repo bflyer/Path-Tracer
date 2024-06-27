@@ -31,7 +31,7 @@ public:
             return false;
         } else {
             auto normal_ = Vector3f::dot(normal, r.getOrigin()) - d > 0 ? normal : -normal;
-            h.set(t, material, normal_);
+            h.set(t, material, normal_.normalized());
             return true;
         }
     }

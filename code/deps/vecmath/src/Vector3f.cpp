@@ -114,7 +114,7 @@ float Vector3f::z() const
 float Vector3f::max() const
 {
 	return (m_elements[0] > m_elements[1] && m_elements[0] > m_elements[2]) ? m_elements[0] :
-		((m_elements[1] > m_elements[0] && m_elements[1] > m_elements[2]) ? m_elements[1] : m_elements[2]);
+		((m_elements[1] > m_elements[2]) ? m_elements[1] : m_elements[2]);
 }
 
 Vector2f Vector3f::xy() const

@@ -38,7 +38,7 @@ Materials {
         type 1 0 0
     }
     Material { 
-        diffuseColor 0.7 0.7 0.7
+        diffuseColor 0.0 0.0 0.0
         type 1 0 0
     }
     Material {
@@ -48,7 +48,7 @@ Materials {
     Material {
         diffuseColor 0.999 0.999 0.999
         type 0 0 1
-        refractRate 1.6
+        refractRate 1.5
     }
     Material {
         diffuseColor 0 0 0

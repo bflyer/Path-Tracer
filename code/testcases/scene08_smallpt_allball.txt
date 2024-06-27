@@ -38,17 +38,17 @@ Materials {
         type 1 0 0
     }
     Material { 
-        diffuseColor 0.7 0.7 0.7
+        diffuseColor 0.0 0.0 0.0
         type 1 0 0
     }
     Material {
-        diffuseColor 0.7 0.7 0.7
+        diffuseColor 0.999 0.999 0.999
         type 0 1 0
     }
     Material {
-        diffuseColor 0.1 0.1 0.1
+        diffuseColor 0.999 0.999 0.999
         type 0 0 1
-        refractRate 1.6
+        refractRate 1.5
     }
     Material {
         diffuseColor 0 0 0
@@ -56,40 +56,39 @@ Materials {
         type 1 0 0
         emission 12 12 12
     }
-
 }
 
 Group {
     numObjects 9
     MaterialIndex 0
-    Plane {
-        normal 1 0 0
-        offset 1
+    Sphere {
+        center 100001 40.8 81.6 
+        radius 100000
     }
     MaterialIndex 1
-    Plane {
-        normal -1 0 0
-        offset -99
+    Sphere {
+        center -99901 40.8 81.6 
+        radius 100000
     }
     MaterialIndex 2
-    Plane {
-        normal 0 0 1
-        offset 0
+    Sphere {
+        center 50 40.8 100000
+        radius 100000
     }
     MaterialIndex 3
-    Plane {
-        normal 0 0 -1
-        offset -300
+    Sphere {
+        center 50 40.8 -99830
+        radius 100000
     }
     MaterialIndex 2
-    Plane {
-        normal 0 1 0
-        offset 0
+    Sphere {
+        center 50 -99918.4 81.6 
+        radius 100000
     }
     MaterialIndex 2
-    Plane {
-        normal 0 -1 0
-        offset -81.6
+    Sphere {
+        center 50 681.33 81.6 
+        radius 100000
     }
     MaterialIndex 4
     Sphere {
@@ -105,7 +104,7 @@ Group {
 
     MaterialIndex 6
     Sphere {
-        center 50 681.33 71.6 
+        center 50 681.33 81.6 
         radius 600
     }
 

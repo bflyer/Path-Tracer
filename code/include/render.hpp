@@ -69,7 +69,7 @@ static Vector3f wtColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
         color += wtColor(Ray(hitPos, newDir), sceneParser, depth);
     } 
     // 3.B 若该表面是透射面(Transmission)
-    else if (material->getType().z() > 0) {
+    else if (material->getType().z() == 1) {
         // 折射率
         float n = material->getRefractRate();
         // 入射角余弦值
@@ -176,13 +176,23 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
     Vector3f n(hit.getNormal());
     Vector3f nl = Vector3f::dot(n, ray.getDirection()) < 0 ? n : -n;  // ensure the normal points outward
 
-    // TODO：丢弃时选择 0 还是选择材质的 emission
+    // // TODO：丢弃时选择 0 还是选择材质的 emission
+    // // 2. R.R.(Russian Roulette)
+    // if (++depth > RR_DEPTH) {
+    //     if (RAND2 < RR_PROBABILITY)
+    //         f = f * (1.0 / RR_PROBABILITY);
+    //     else 
+    //         return material->getEmission() * E;
+    // }
+
+    float p = f.max();
     // 2. R.R.(Russian Roulette)
-    if (++depth > RR_DEPTH) {
-        if (RAND2 < RR_PROBABILITY)
-            f = f * (1.0 / RR_PROBABILITY);
-        else 
+    if (++depth > RR_DEPTH || !p) {  // 大于阈值或者达到光源，开始 R.R.
+        if (RAND2 < p)
+            f = f * (1.0 / p);
+        else {
             return material->getEmission() * E;
+        }
     }
 
     float type = RAND2;
@@ -210,59 +220,60 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
 
         // 对光源采样
         // Loop over any lights
-        Vector3f e;
-        Hit h;
-        // for (Sphere* eObj : group->getEmissionObjList()){
-        //     // 用 Realistic Ray Tracing 创建打向球体的随机光线方向
-        //     Vector3f sw = eObj->getCenter() - hitPos;         // 发光球体球心与交点的连线
-        //     Vector3f su = Vector3f::cross((fabs(sw.x()) > .1 ? Vector3f(0, 1, 1) : Vector3f(1, 0, 0)), sw).normalized();
-        //     Vector3f sv = Vector3f::cross(sw, su);
+        Vector3f e = Vector3f::ZERO;
+        Hit h1, h2;
+        for (Sphere* eObj : group->getEmissionObjList()){
+            // 用 Realistic Ray Tracing 创建打向球体的随机光线方向
+            Vector3f sw = eObj->getCenter() - hitPos;         // 发光球体球心与交点的连线
+            Vector3f su = Vector3f::cross((fabs(sw.x()) > .1 ? Vector3f(0, 1, 0) : Vector3f(1, 0, 0)), sw).normalized();
+            Vector3f sv = Vector3f::cross(sw, su);
+            double cos_a_max = sqrt(1 - eObj->getRadius() * eObj->getRadius() / Vector3f::dot(hitPos - eObj->getCenter(), hitPos - eObj->getCenter()));
+            double eps = RAND2;
+            double cos_a = 1 - eps + eps * cos_a_max;  // 先用半角公式缩到半角，取随机，然后再倍乘回来
+            double sin_a = sqrt(1 - cos_a * cos_a);
+            double phi = 2 * M_PI * RAND2;
+            Vector3f l = (su * cos(phi) * sin_a + sv * sin(phi) * sin_a + sw * cos_a).normalized();
 
-        //     double cos_a_max = sqrt(1 - eObj->getRadius() * eObj->getRadius() / Vector3f::dot(hitPos - eObj->getCenter(), hitPos - eObj->getCenter()));
-        //     double eps = RAND2;
-        //     double cos_a = 1 - eps + eps * cos_a_max;
-        //     double sin_a = sqrt(1 - cos_a * cos_a);
-        //     double phi = 2 * M_PI * RAND2;
-        //     Vector3f l = su * cos(phi) * sin_a + sv * sin(phi) * sin_a + sw * cos_a;
+            // Shoot shadow ray
+            // if (group->intersect(Ray(hitPos, l.normalized()), h, TMIN){  // Check for occlusion with shadow ray
+            if (group->intersect(Ray(hitPos, l), h1, TMIN))
+                if (eObj->intersect(Ray(hitPos, l.normalized()), h2, TMIN) && h1.getT() == h2.getT()){  // shadow ray
+                    // cos2 = h2.getNormal().dot(l);
+                    double omega = 2 * M_PI * (1 - cos_a_max);
+                    float cosine = Vector3f::dot(l, nl);
+                    cosine = cosine > 0 ? cosine : 0;
+                    e = e + f * (eObj->getMaterial()->getEmission() * cosine * omega) * M_1_PI / 2;  // 1/pi for brdf
+                }
+        }
+        // // for (Sphere* eObj : group->getEmissionObjList()){
+        // //     // 用 Realistic Ray Tracing 创建打向球体的随机光线方向
+        // //     Vector3f sw = eObj->getCenter() - hitPos;         // 发光球体球心与交点的连线
+        // //     Vector3f su = Vector3f::cross((fabs(sw.x()) > .1 ? Vector3f(0, 1, 1) : Vector3f(1, 0, 0)), sw).normalized();
+        // //     Vector3f sv = Vector3f::cross(sw, su);
 
-        //     // Shoot shadow ray
-        //     // if (group->intersect(Ray(hitPos, l.normalized()), h, TMIN) && h.getT() == l.length()){  // Check for occlusion with shadow ray
-        //     if (group->intersect(Ray(hitPos, l.normalized()), h, TMIN)){  // shadow ray
-        //         double omega = 2 * M_PI * (1 - cos_a_max);
-        //         e = e + f * (eObj->getMaterial()->getEmission() * Vector3f::dot(l, nl) * omega) * M_1_PI;  // 1/pi for brdf
-        //     }
-        // }
+        // //     double cos_a_max = sqrt(1 - eObj->getRadius() * eObj->getRadius() / Vector3f::dot(hitPos - eObj->getCenter(), hitPos - eObj->getCenter()));
+        // //     double eps = RAND2;
+        // //     double cos_a = eps * cos_a_max;           // 在可视锥体内选一个极角
+        // //     double sin_a = sqrt(1 - cos_a * cos_a);   
+        // //     double phi = 2 * M_PI * RAND2;
+        // //     Vector3f l = (su * cos(phi) * sin_a + sv * sin(phi) * sin_a + sw * cos_a).normalized();
 
-        // for (Sphere* eObj : group->getEmissionObjList()){
-        //     // 用 Realistic Ray Tracing 创建打向球体的随机光线方向
-        //     Vector3f sw = eObj->getCenter() - hitPos;         // 发光球体球心与交点的连线
-        //     Vector3f su = Vector3f::cross((fabs(sw.x()) > .1 ? Vector3f(0, 1, 1) : Vector3f(1, 0, 0)), sw).normalized();
-        //     Vector3f sv = Vector3f::cross(sw, su);
-
-        //     double cos_a_max = sqrt(1 - eObj->getRadius() * eObj->getRadius() / Vector3f::dot(hitPos - eObj->getCenter(), hitPos - eObj->getCenter()));
-        //     double eps = RAND2;
-        //     double cos_a = eps * cos_a_max;           // 在可视锥体内选一个极角
-        //     double sin_a = sqrt(1 - cos_a * cos_a);   
-        //     double phi = 2 * M_PI * RAND2;
-        //     Vector3f l = (su * cos(phi) * sin_a + sv * sin(phi) * sin_a + sw * cos_a).normalized();
-
-        //     // Shoot shadow ray
-        //     // if (group->intersect(Ray(hitPos, l.normalized()), h, TMIN) && h.getT() == l.length()){  // Check for occlusion with shadow ray
-        //     if (group->intersect(Ray(hitPos, -l), h, TMIN)){  // shadow ray
-        //         float cos1 = Vector3f::dot(-l, n);          // 光线与原交点法线的夹角余弦
-        //         cos1 = cos1 > 0 ? cos1 : -cos1;
-        //         float cos2 = Vector3f::dot(h.getNormal(), l);
-        //         float invD2 = 1 / (h.getT() * h.getT());
-        //         double sin_a_max = sqrt(1 - cos_a_max * cos_a_max);   // 最大半角正弦
-        //         // float invArea = 1 / (2 * M_PI * eObj->getRadius() * (1 - sin_a_max));
-        //         float invArea = 1 / (eObj->getRadius() * (1 - sin_a_max));
-        //         e = e + f * eObj->getMaterial()->getEmission() * cos2 * invD2 * invArea;
-        //         // e = e + f * eObj->getMaterial()->getEmission();
-        //     }
-        // }
-
-        // return material->getEmission() * E + e + f * c * (ptColor(Ray(hitPos, d), sceneParser, depth, 1));
-        return material->getEmission() + f *(ptColor(Ray(hitPos, d), sceneParser, depth, 1));
+        // //     // Shoot shadow ray
+        // //     // if (group->intersect(Ray(hitPos, l.normalized()), h, TMIN) && h.getT() == l.length()){  // Check for occlusion with shadow ray
+        // //     if (group->intersect(Ray(hitPos, -l), h, TMIN) && h.getT() == Vector3f::dot(l, sw - eObj->getRadius())){  // shadow ray
+        // //         float cos1 = Vector3f::dot(-l, n);          // 光线与原交点法线的夹角余弦
+        // //         cos1 = cos1 > 0 ? cos1 : -cos1;
+        // //         float cos2 = Vector3f::dot(h.getNormal(), l);
+        // //         float invD2 = 1 / (h.getT() * h.getT());
+        // //         double sin_a_max = sqrt(1 - cos_a_max * cos_a_max);   // 最大半角正弦
+        // //         // float invArea = 1 / (2 * M_PI * eObj->getRadius() * (1 - sin_a_max));
+        // //         float invArea = 1 / (eObj->getRadius() * (1 - sin_a_max));
+        // //         e = e + f * eObj->getMaterial()->getEmission() * cos2 * invD2 * invArea;
+        // //         // e = e + f * eObj->getMaterial()->getEmission();
+        // //     }
+        // // }
+        return material->getEmission() * E + e + f * c * (ptColor(Ray(hitPos, d), sceneParser, depth, 0));
+        // return material->getEmission() + f *(ptColor(Ray(hitPos, d), sceneParser, depth, 1));
     }
 
     // Ideal SPECULAR reflection(理想镜面反射)
