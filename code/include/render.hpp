@@ -166,6 +166,7 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
     // 1. 求交：如果没有交点，直接返回背景色
     // TODO: 返回背景色还是返回黑色呢？
     if (!group->intersect(ray, hit, TMIN)) {
+        cout << "no hit" ;sceneParser.getBackgroundColor().print();
         return sceneParser.getBackgroundColor();
     }
 
@@ -187,7 +188,7 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
 
     float p = f.max();
     // 2. R.R.(Russian Roulette)
-    if (++depth > RR_DEPTH || !p) {  // 大于阈值或者达到光源，开始 R.R.
+    if (++depth > RR_DEPTH || !p) {  // 大于阈值或者打到光源，开始 R.R.（达到光源一定会返回）
         if (RAND2 < p)
             f = f * (1.0 / p);
         else {
@@ -200,7 +201,10 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
     // Ideal DIFFUSE reflection(理想漫反射)
     if (material->getType().x() == 1){      
         // 如果父函数使用了 NEE 且该物体发光，直接返回
-        if (E == 0 && material->getEmission().max() != 0) return Vector3f::ZERO;         
+        if (E == 0 && material->getEmission().max() != 0) { 
+            cout << "hey" << endl;
+            return Vector3f::ZERO;         
+        }
         // 记极角(polar angle) 为 theta，记方位角(Azimuthal angle) 为 phi    
         double phi = 2 * M_PI * RAND2;  
         double sinTheta2 = RAND2;              // sin(theta) ^ 2
@@ -219,14 +223,14 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
         float cosHit = Vector3f::dot(d, n);
         float c = (cosHit > 0 ? cosHit : -cosHit);
         // float c = (cosHit > 0 ? cosHit : -cosHit);
-
+        
         // 对光源采样
         // Loop over any lights
         Vector3f e = Vector3f::ZERO;
         Hit h1, h2;
         for (Sphere* eObj : group->getEmissionObjList()){
             // 用 Realistic Ray Tracing 创建打向球体的随机光线方向
-            Vector3f sw = (eObj->getCenter() - hitPos).normalized();         // 发光球体球心与交点的连线
+            Vector3f sw = (eObj->getCenter() - hitPos);         // 发光球体球心与交点的连线
             // Vector3f sw = hitPos - eObj->getCenter();         // 发光球体球心与交点的连线
             Vector3f su = Vector3f::cross((fabs(sw.x()) > .1 ? Vector3f(0, 1, 0) : Vector3f(1, 0, 0)), sw).normalized();
             Vector3f sv = Vector3f::cross(sw, su);
@@ -249,7 +253,7 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
                     double omega = 2 * M_PI * (1 - cos_a_max);
                     float cosine = Vector3f::dot(l, nl);
                     cosine = cosine > 0 ? cosine : 0;
-                    e = e + f * (eObj->getMaterial()->getEmission() * cosine * omega) * cos2;  // 1/pi for brdf
+                    e = e + f * (eObj->getMaterial()->getEmission() * cosine * omega) * cos2 / 2 * M_1_PI;  // 1/pi for brdf
                 }
         }
         // // for (Sphere* eObj : group->getEmissionObjList()){
@@ -280,7 +284,7 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
         // //     }
         // // }
         return material->getEmission() * E + e + f * (ptColor(Ray(hitPos, d), sceneParser, depth, 0));
-        // return material->getEmission() + f *(ptColor(Ray(hitPos, d), sceneParser, depth, 1));
+        return material->getEmission() + f * c * (ptColor(Ray(hitPos, d), sceneParser, depth, 1));
     }
 
     // Ideal SPECULAR reflection(理想镜面反射)
