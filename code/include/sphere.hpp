@@ -60,6 +60,7 @@ public:
             // 获取交点坐标及法向量
             Vector3f point(o + dir * t);
             Vector3f normal((point - ballCenter).normalized());
+            // Vector3f normal((ballCenter - point).normalized());
             h.set(t, material, normal);
             return true;
         }

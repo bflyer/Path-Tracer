@@ -198,7 +198,9 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
     float type = RAND2;
     // 3. 单独处理理想漫反射和理想镜面反射
     // Ideal DIFFUSE reflection(理想漫反射)
-    if (material->getType().x() == 1){             
+    if (material->getType().x() == 1){      
+        // 如果父函数使用了 NEE 且该物体发光，直接返回
+        if (E == 0 && material->getEmission().max() != 0) return Vector3f::ZERO;         
         // 记极角(polar angle) 为 theta，记方位角(Azimuthal angle) 为 phi    
         double phi = 2 * M_PI * RAND2;  
         double sinTheta2 = RAND2;              // sin(theta) ^ 2
@@ -215,7 +217,7 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
         // 通过球坐标系转换为笛卡尔坐标系的方式计算出新的反射方向向量 d
         Vector3f d = (u * cos(phi) * sinTheta + v * sin(phi) * sinTheta + w * sqrt(1 - sinTheta2)).normalized();
         float cosHit = Vector3f::dot(d, n);
-        float c = (cosHit > 0 ? cosHit : -cosHit) * 2 * M_PI;
+        float c = (cosHit > 0 ? cosHit : -cosHit);
         // float c = (cosHit > 0 ? cosHit : -cosHit);
 
         // 对光源采样
@@ -224,25 +226,30 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
         Hit h1, h2;
         for (Sphere* eObj : group->getEmissionObjList()){
             // 用 Realistic Ray Tracing 创建打向球体的随机光线方向
-            Vector3f sw = eObj->getCenter() - hitPos;         // 发光球体球心与交点的连线
+            Vector3f sw = (eObj->getCenter() - hitPos).normalized();         // 发光球体球心与交点的连线
+            // Vector3f sw = hitPos - eObj->getCenter();         // 发光球体球心与交点的连线
             Vector3f su = Vector3f::cross((fabs(sw.x()) > .1 ? Vector3f(0, 1, 0) : Vector3f(1, 0, 0)), sw).normalized();
             Vector3f sv = Vector3f::cross(sw, su);
             double cos_a_max = sqrt(1 - eObj->getRadius() * eObj->getRadius() / Vector3f::dot(hitPos - eObj->getCenter(), hitPos - eObj->getCenter()));
             double eps = RAND2;
             double cos_a = 1 - eps + eps * cos_a_max;  // 先用半角公式缩到半角，取随机，然后再倍乘回来
             double sin_a = sqrt(1 - cos_a * cos_a);
+            // double sin_a_max = sqrt(eObj->getRadius() * eObj->getRadius() / Vector3f::dot(hitPos - eObj->getCenter(), hitPos - eObj->getCenter()));
+            // double cos_a_max = sqrt(1 - sin_a_max * sin_a_max);
+            // double sin_a = RAND2 * sin_a_max;
+            // double cos_a = sqrt(1 - sin_a * sin_a);            
             double phi = 2 * M_PI * RAND2;
             Vector3f l = (su * cos(phi) * sin_a + sv * sin(phi) * sin_a + sw * cos_a).normalized();
 
             // Shoot shadow ray
             // if (group->intersect(Ray(hitPos, l.normalized()), h, TMIN){  // Check for occlusion with shadow ray
             if (group->intersect(Ray(hitPos, l), h1, TMIN))
-                if (eObj->intersect(Ray(hitPos, l.normalized()), h2, TMIN) && h1.getT() == h2.getT()){  // shadow ray
-                    // cos2 = h2.getNormal().dot(l);
+                if (eObj->intersect(Ray(hitPos, l), h2, TMIN) && h1.getT() == h2.getT()){  // shadow ray
+                    float cos2 = Vector3f::dot(-h2.getNormal(), sw.normalized());
                     double omega = 2 * M_PI * (1 - cos_a_max);
                     float cosine = Vector3f::dot(l, nl);
                     cosine = cosine > 0 ? cosine : 0;
-                    e = e + f * (eObj->getMaterial()->getEmission() * cosine * omega) * M_1_PI / 2;  // 1/pi for brdf
+                    e = e + f * (eObj->getMaterial()->getEmission() * cosine * omega) * cos2;  // 1/pi for brdf
                 }
         }
         // // for (Sphere* eObj : group->getEmissionObjList()){
@@ -272,7 +279,7 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
         // //         // e = e + f * eObj->getMaterial()->getEmission();
         // //     }
         // // }
-        return material->getEmission() * E + e + f * c * (ptColor(Ray(hitPos, d), sceneParser, depth, 0));
+        return material->getEmission() * E + e + f * (ptColor(Ray(hitPos, d), sceneParser, depth, 0));
         // return material->getEmission() + f *(ptColor(Ray(hitPos, d), sceneParser, depth, 1));
     }
 
