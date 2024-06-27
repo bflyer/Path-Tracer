@@ -40,9 +40,6 @@ public:
         int texID;
         while (true) {
             std::getline(f, line);
-            if (f.eof()) {
-                break;
-            }
             // 跳过空行、注释行（以#开头）和长度小于3的行。
             if (line.size() < 3 || line.at(0) == '#')
                 continue;
@@ -88,6 +85,9 @@ public:
                 Vector3f vec;
                 ss >> vec[0] >> vec[1] >> vec[2];
                 vn.push_back(vec);
+            }
+            if (f.eof()) {
+                break;
             }
         }
         f.close();
@@ -179,7 +179,7 @@ public:
     }
 
     Vector3f sample() const override {
-        int id = (int)(RAND * triangles.size());
+        int id = (int)(RAND2 * triangles.size());
         return triangles[id]->sample();
     }
 
