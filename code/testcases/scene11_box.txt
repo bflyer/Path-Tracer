@@ -109,9 +109,8 @@ Group {
     }
 
     MaterialIndex 5
-    Sphere {
-      center 50 5 90
-      radius 5
+    TriangleMesh {
+        obj_file mesh/cube.obj
     }
 
     MaterialIndex 6

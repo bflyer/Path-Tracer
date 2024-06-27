@@ -32,6 +32,7 @@ public:
         }
     }
     
+    // 还没进来就已出去则无交点
     bool intersect(const Ray &r, double &t_min) {
         Vector3f o(r.getOrigin()), invdir(1 / r.getDirection());
         Vector3f t0 = (bounds[0] - o) * invdir;

@@ -262,6 +262,18 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
         }
     }
 
+    float p = f.max();
+    // 2. R.R.(Russian Roulette)
+    if (++depth > RR_DEPTH || material->getEmission() != Vector3f::ZERO) {  // 大于阈值或者打到光源，开始 R.R.（达到光源一定会返回）
+        if (RAND2 >= p || material->getEmission() != Vector3f::ZERO)        // 1 - p 概率丢弃，以及打到光源丢弃
+            return material->getEmission() * E;
+        else {
+            f = f * (1.0 / p);
+        }
+    }
+    // TODO：if (f != 0) 发光乘上 f
+    
+
     // 3. 单独处理理想漫反射和理想镜面反射
     // Ideal DIFFUSE reflection(理想漫反射)
     if (material->getType().x() == 1){      
@@ -295,10 +307,10 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
                 abs(h.getT() - sampleLine.length()) < TMIN) {  
             // if (group->intersect(Ray(hitPos, sampleDir), h, TMIN)) {
                 double cos1 = Vector3f::dot(sampleDir, nl);              // 5. 计算光线与着色点法向量余弦
-                cos1 = cos1 > 0 ? cos1 : -cos1;                         // TODO: 这里是否需要取绝对值？
+                // cos1 = cos1 > 0 ? cos1 : 0;                         // TODO: 这里是否需要取绝对值？
                 double cos2 = Vector3f::dot(sampleDir, hit.getNormal());  // 6. 计算光线与交点法向量余弦
-                cos2 = cos2 > 0 ? cos2 : -cos2;
-                e += eObj->getMaterial()->getEmission() * f * area * cos1 * cos2 / sampleLine.squaredLength();  // 7. 计算光源的颜色
+                // cos2 = cos2 > 0 ? cos2 : 0;
+                e += eObj->getMaterial()->getEmission() * f * area * cos1 * cos2 / sampleLine.squaredLength() * M_1_PI;  // 7. 计算光源的颜色
             }
         }        
         return material->getEmission() * E + e + f * (ptColor(Ray(hitPos, d), sceneParser, depth, 0));
@@ -415,7 +427,6 @@ class PathTracer {
             const float invss2 = 1.0f / (superSample * superSample);
             for (int yy = 0; yy < h * superSample; ++yy) {
                 for (int xx = 0; xx < w * superSample; ++xx) {
-                    // cout << "(" << xx << ", " << yy << ") ";
                     // 计算实际输出图像的像素位置
                     int x = xx / superSample;
                     int y = yy / superSample;
@@ -429,7 +440,7 @@ class PathTracer {
                         // if (xx == 16 && yy == 153) {
                         //     color += radiance(camRay, sceneParser, 0, 2);
                         // }
-                        color += radiance(camRay, sceneParser, 0, 1);
+                        color += clampVec(radiance(camRay, sceneParser, 0, 1));
                     }
                     // 对超级采样区域内的颜色求平均
                     // color = clampVec(color / samplesPerPixel) * invss2;

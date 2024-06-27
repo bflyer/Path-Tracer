@@ -116,6 +116,6 @@ Group {
 
     MaterialIndex 6
     TriangleMesh {
-        obj_file mesh/squareLight.obj
+        obj_file mesh/star.obj
     }
 }

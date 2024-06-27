@@ -45,17 +45,6 @@ public:
             if (obj) flag |= obj->intersect(r, h, tmin);
         return flag;
     }
-
-    // TODO: 待删除
-    // void addObject(int index, Object3D *obj) {
-    //     // TODO: 为什么需要有索引呢？直接插在最后不行吗？
-    //     objList.push_back(obj);
-    //     // objList.insert(objList.begin() + index, obj);
-    // }
-
-    // void addEmissionObject(Sphere *obj) {
-    //     emissionObjList.push_back(obj);
-    // }
     
     int getGroupSize() {
         return objList.size();

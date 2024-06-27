@@ -78,8 +78,7 @@ class ObjectKDTree {
             p->ls = build(depth + 1, (axis + 1) % 3, p->faces, min, maxL);
             p->rs = build(depth + 1, (axis + 1) % 3, p->faces, minR, max);
 
-            // TODO：1. 目前判断物体是否在子空间内部的逻辑是完全处于内部或者刚好触及边界才算，那么横跨的如何处理？
-            // TODO：2. 对于刚好位于分界面上的三角面片等等，既在左边又在右边，这个时候会把它们认为属于父节点，这样不就在子节点中再也看不到了吗
+            // 横跨分界面的节点归给父亲    
             vector<Object3D*>*faceL = p->ls->faces, *faceR = p->rs->faces;
             map<Object3D*, int> cnt;
             for (auto face : *faceL) cnt[face]++;

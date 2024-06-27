@@ -26,7 +26,10 @@ public:
             refractRate(r), 
             type(t),
             texture(texture_filename),
-            bump(bump_filename) {}
+            bump(bump_filename) {
+                if (e_color != Vector3f::ZERO && d_color != Vector3f::ZERO) 
+                    emission = e_color * d_color;
+            }
 
     virtual ~Material() = default;
 
