@@ -283,7 +283,7 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
         // //         // e = e + f * eObj->getMaterial()->getEmission();
         // //     }
         // // }
-        return material->getEmission() * E + e + f * (ptColor(Ray(hitPos, d), sceneParser, depth, 0));
+        return material->getEmission() * E + e + f * c * (ptColor(Ray(hitPos, d), sceneParser, depth, 0));
         return material->getEmission() + f * c * (ptColor(Ray(hitPos, d), sceneParser, depth, 1));
     }
 
