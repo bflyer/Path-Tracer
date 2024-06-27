@@ -105,18 +105,16 @@ static Vector3f wtColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
 // Path Tracing
 // Ref: smallpt
 static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, int E = 1) {
-    if (E == 2) {
-        cout << "dir is: "; ray.getDirection().print();
-    }
     Group* group = sceneParser.getGroup();
     Vector3f color = Vector3f::ZERO;
     Hit hit;
-    if (E == 2) cout << "115" << endl;
+    if (E == 2) cout << "111" << endl;
     // 1. 求交：如果没有交点，直接返回背景色
     if (!group->intersect(ray, hit, TMIN)) {
+        if (E == 2) cout << "114" << endl;
         return sceneParser.getBackgroundColor();
     }
-    if (E == 2) cout << "116" << endl;
+    if (E == 2) cout << "115" << endl;
     // 交点坐标
     Vector3f hitPos(ray.getOrigin() + ray.getDirection() * hit.getT());
     Material* material = hit.getMaterial();          // the hit object
@@ -133,7 +131,9 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
             return material->getEmission() * E;
         }
     }
-
+    if (E==2){
+        material->getType().print();
+    }
     // 3. 单独处理理想漫反射和理想镜面反射
     // Ideal DIFFUSE reflection(理想漫反射)
     if (material->getType().x() == 1){      
@@ -159,7 +159,9 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
         // Loop over any lights
         Vector3f e = Vector3f::ZERO;
         Hit h1, h2;
-        if (E == 2) cout << "159" << endl;
+        if (E==2) {
+            cout << "161" << endl;
+        }
         for (Sphere* eObj : group->getEmissionObjList()){
             // 用 Realistic Ray Tracing 创建打向球体的随机光线方向
             Vector3f sw = (eObj->getCenter() - hitPos).normalized();         // 交点指向发光球体球心的单位向量
@@ -179,10 +181,8 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
             Vector3f l = (su * cos(phi) * sin_a + sv * sin(phi) * sin_a + sw * cos_a).normalized();
             // Shoot shadow ray
             // if (group->intersect(Ray(hitPos, l.normalized()), h, TMIN){  // Check for occlusion with shadow ray
-            if (E == 2) cout << "180" << endl;
             if (group->intersect(Ray(hitPos, l), h1, TMIN))
                 if (eObj->intersect(Ray(hitPos, l), h2, TMIN) && h1.getT() == h2.getT()){  // shadow ray
-                if (E == 2) cout << "183" << endl;
                     float cos2 = Vector3f::dot(-h2.getNormal(), sw.normalized());
                     double omega = 2 * M_PI * (1 - cos_a_max);
                     float cosine = Vector3f::dot(l, nl);
@@ -190,67 +190,28 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
                     e = e + f * (eObj->getMaterial()->getEmission() * cosine * omega) * cos2;  // 1/pi for brdf
                     // e = e + f * (eObj->getMaterial()->getEmission() * cosine * omega) * cos2 / 2 * M_1_PI;  // 1/pi for brdf
                 }
-                if (E == 2) cout << "191" << endl;
         }
-        if (E == 2) cout << "190" << endl;
-        if (E == 2) return material->getEmission() * E + e + f * c * (ptColor(Ray(hitPos, d), sceneParser, depth, 2));
-        return material->getEmission() * E + e + f * c * (ptColor(Ray(hitPos, d), sceneParser, depth, 0));
+        if (E==2) {
+            cout << "190" << endl;
+            return material->getEmission() * E + e + f * c * (ptColor(Ray(hitPos, d), sceneParser, depth, 2));
+        }
+        else {
+            return material->getEmission() * E + e + f * c * (ptColor(Ray(hitPos, d), sceneParser, depth, 0));
+        }
+        // return material->getEmission() * E + e + f * c * (ptColor(Ray(hitPos, d), sceneParser, depth, 0));
         // return material->getEmission() + f * c * (ptColor(Ray(hitPos, d), sceneParser, depth, 1));
     }
     
     // Ideal SPECULAR reflection(理想镜面反射)
     else if (material->getType().y() == 1) {
-        if (E == 2) 
-            cout << "200" << endl;
         Vector3f d = ray.getDirection() - n * 2 * Vector3f::dot(ray.getDirection(), n);
-        
-        if (E == 2) { 
-            cout << "dir = " ; ray.getDirection().print();
-            cout << "d = "; d.print();
-            cout << "hitPos = "; hitPos.print();
-        }
-        // // Loop over any lights
-        // Vector3f e = Vector3f::ZERO;
-        // Hit h1, h2;
-        // for (Sphere* eObj : group->getEmissionObjList()){
-        //     // 用 Realistic Ray Tracing 创建打向球体的随机光线方向
-        //     Vector3f sw = (eObj->getCenter() - hitPos).normalized();         // 交点指向发光球体球心的单位向量
-        //     Vector3f su = Vector3f::cross((fabs(sw.x()) > .1 ? Vector3f(0, 1, 0) : Vector3f(1, 0, 0)), sw).normalized();
-        //     Vector3f sv = Vector3f::cross(sw, su);
-        //     double cos_a_max2 = 1 - eObj->getRadius() * eObj->getRadius() / Vector3f::dot(hitPos - eObj->getCenter(), hitPos - eObj->getCenter());
-        //     if (cos_a_max2 < 0) continue;
-        //     double cos_a_max = sqrt(cos_a_max2);
-        //     double eps = RAND2;
-        //     double cos_a = 1 - eps + eps * cos_a_max;  // 先用半角公式缩到半角，取随机，然后再倍乘回来
-        //     double sin_a = sqrt(1 - cos_a * cos_a);
-        //     // double sin_a_max = sqrt(eObj->getRadius() * eObj->getRadius() / Vector3f::dot(hitPos - eObj->getCenter(), hitPos - eObj->getCenter()));
-        //     // double cos_a_max = sqrt(1 - sin_a_max * sin_a_max);
-        //     // double sin_a = RAND2 * sin_a_max;
-        //     // double cos_a = sqrt(1 - sin_a * sin_a);            
-        //     double phi = 2 * M_PI * RAND2;
-        //     Vector3f l = (su * cos(phi) * sin_a + sv * sin(phi) * sin_a + sw * cos_a).normalized();
-        //     // Shoot shadow ray
-        //     // if (group->intersect(Ray(hitPos, l.normalized()), h, TMIN){  // Check for occlusion with shadow ray
-        //     if (E == 2) cout << "180" << endl;
-        //     if (group->intersect(Ray(hitPos, l), h1, TMIN))
-        //         if (eObj->intersect(Ray(hitPos, l), h2, TMIN) && h1.getT() == h2.getT()){  // shadow ray
-        //         if (E == 2) cout << "183" << endl;
-        //             float cos2 = Vector3f::dot(-h2.getNormal(), sw.normalized());
-        //             double omega = 2 * M_PI * (1 - cos_a_max);
-        //             float cosine = Vector3f::dot(l, nl);
-        //             cosine = cosine > 0 ? cosine : 0;
-        //             e = e + f * (eObj->getMaterial()->getEmission() * cosine * omega) * cos2;  // 1/pi for brdf
-        //             // e = e + f * (eObj->getMaterial()->getEmission() * cosine * omega) * cos2 / 2 * M_1_PI;  // 1/pi for brdf
-        //         }
-        //         if (E == 2) cout << "191" << endl;
-        // }
-        Vector3f haha = material->getEmission() + f * (ptColor(Ray(hitPos, d), sceneParser, depth));
-        
-        if (E == 2) { 
-            haha.print();
+        if (E==2) {
+            cout << "204" << endl;
+            return material->getEmission() + f * (ptColor(Ray(hitPos, d), sceneParser, depth, 2));
+        } else {
             return material->getEmission() + f * (ptColor(Ray(hitPos, d), sceneParser, depth));
         }
-        return material->getEmission() + f * (ptColor(Ray(hitPos, d), sceneParser, depth));
+        // return material->getEmission() + f * (ptColor(Ray(hitPos, d), sceneParser, depth));
     }
         
     // Ideal dielectric REFRACTION(理想介质折射)
@@ -286,11 +247,20 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
     // P: 用于决定追踪反射光线还是折射光线
     // RP: 追踪反射光线的权重；TP: 追踪折射光线的权重
     double P = .25 + .5*Re, RP = Re/P, TP = Tr / (1-P);
-    if (E == 2) cout << "238" << endl;
-    // 递归深度大于阈值时使用俄罗斯轮盘赌
-    return material->getEmission() + f * (depth > 2 ? (RAND2 < P ?
+    if (E==2) {
+        cout << "246" << endl;
+        return material->getEmission() + f * (depth > 2 ? (RAND2 < P ?
         ptColor(reflRay, sceneParser, depth) * RP : ptColor(Ray(hitPos, tdir), sceneParser, depth) * TP) :
         ptColor(reflRay, sceneParser, depth) * Re + ptColor(Ray(hitPos, tdir), sceneParser, depth) * Tr);
+    } else {
+        return material->getEmission() + f * (depth > 2 ? (RAND2 < P ?
+        ptColor(reflRay, sceneParser, depth) * RP : ptColor(Ray(hitPos, tdir), sceneParser, depth) * TP) :
+        ptColor(reflRay, sceneParser, depth) * Re + ptColor(Ray(hitPos, tdir), sceneParser, depth) * Tr);
+    }
+    // 递归深度大于阈值时使用俄罗斯轮盘赌
+    // return material->getEmission() + f * (depth > 2 ? (RAND2 < P ?
+    //     ptColor(reflRay, sceneParser, depth) * RP : ptColor(Ray(hitPos, tdir), sceneParser, depth) * TP) :
+    //     ptColor(reflRay, sceneParser, depth) * Re + ptColor(Ray(hitPos, tdir), sceneParser, depth) * Tr);
 }
 
 // // Path Tracing（递推版）
@@ -470,10 +440,8 @@ class PathTracer {
                     // 计算实际输出图像的像素位置
                     int x = xx / superSample;
                     int y = yy / superSample;
-                    cout << "yy = " << yy << " xx = " << xx << endl;
                     Vector3f color = Vector3f::ZERO;
                     for (int s = 0; s < samplesPerPixel; ++s) { 
-                        cout << "s = " << s << endl;
                         // 使用抖动（jittering）在子像素区域内采样
                         float subpixelX = (xx % superSample + RAND2) / superSample;
                         float subpixelY = (yy % superSample + RAND2) / superSample;
