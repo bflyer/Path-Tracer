@@ -6,7 +6,6 @@
 #include "constants.h"
 
 // Ref: ver.2020
-
 class Material;
 
 class Hit {
@@ -60,21 +59,13 @@ public:
     const Vector3f &getNormal() const { return normal; }
     const Vector3f &getColor() const { return color; }
 
-    // // TODO: add c and p
-    // void set(float _t, Material *m, const Vector3f &n, const Vector3f &c,
-    //          const Vector3f &_p) {
-    //     t = _t;
-    //     material = m;
-    //     normal = n;
-    //     color = c;
-    //     p = _p;
-    // }
-
-    // TODO: add c and p
-    void set(float _t, Material *m, const Vector3f &n) {
+    void set(float _t, Material *m, const Vector3f &n, const Vector3f &c,
+             const Vector3f &_p) {
         t = _t;
         material = m;
         normal = n;
+        color = c;
+        p = _p;
     }
 
 private:

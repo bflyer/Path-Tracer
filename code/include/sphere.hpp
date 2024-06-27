@@ -59,9 +59,13 @@ public:
         } else {
             // 获取交点坐标及法向量
             Vector3f point(o + dir * t);
-            Vector3f normal((point - ballCenter).normalized());
+            Vector3f OP = point - ballCenter;
+            Vector3f normal(OP.normalized());
             // Vector3f normal((ballCenter - point).normalized());
-            h.set(t, material, normal);
+            float u = 0.5 + atan2(normal.x(), normal.z()) / (2 * M_PI);
+            float v = 0.5 - asin(normal.y()) * M_1_PI;
+            h.set(t, material, getNormal(normal, OP, u, v), 
+                  material->getColor(u, v), o + dir * t);
             return true;
         }
     }
@@ -75,6 +79,7 @@ public:
     }
 
     // Ref: ver.2020
+    // 计算 u-v 坐标下的法向
     Vector3f getNormal(const Vector3f &n, const Vector3f &p, float u, float v) {
         Vector2f grad(0);
         float f = material->getBump().getDisturb(u, v, grad);

@@ -30,30 +30,30 @@ public:
         tSet = false;
 	}
 
-	// 法一：中心坐标法直接求交
-	bool intersect( const Ray& ray,  Hit& hit , float tmin) override {
-		Vector3f dir = ray.getDirection();
-		Vector3f e1 = a - b;
-		Vector3f e2 = a - c;
-		Vector3f s = a - ray.getOrigin();
-		Matrix3f m1(s, e1, e2, 1);
-		Matrix3f m2(dir, s, e2, 1);
-		Matrix3f m3(dir, e1, s, 1);
-		Matrix3f m4(dir, e1, e2, 1);
-		float d1 = m1.determinant();
-		float d2 = m2.determinant();
-		float d3 = m3.determinant();
-		float d4 = m4.determinant();
-		float t = d1/d4;
-		float b = d2/d4;
-		float c = d3/d4;
-		if (t <= hit.getT() && t >= tmin && b >= 0 && c >= 0 && b + c <= 1) {
-			hit.set(t, material, normal);
-			return true;
-		} else {
-			return false;
-		}
-	}
+	// // 法一：中心坐标法直接求交
+	// bool intersect( const Ray& ray,  Hit& hit , float tmin) override {
+	// 	Vector3f dir = ray.getDirection();
+	// 	Vector3f e1 = a - b;
+	// 	Vector3f e2 = a - c;
+	// 	Vector3f s = a - ray.getOrigin();
+	// 	Matrix3f m1(s, e1, e2, 1);
+	// 	Matrix3f m2(dir, s, e2, 1);
+	// 	Matrix3f m3(dir, e1, s, 1);
+	// 	Matrix3f m4(dir, e1, e2, 1);
+	// 	float d1 = m1.determinant();
+	// 	float d2 = m2.determinant();
+	// 	float d3 = m3.determinant();
+	// 	float d4 = m4.determinant();
+	// 	float t = d1/d4;
+	// 	float b = d2/d4;
+	// 	float c = d3/d4;
+	// 	if (t <= hit.getT() && t >= tmin && b >= 0 && c >= 0 && b + c <= 1) {
+	// 		hit.set(t, material, normal);
+	// 		return true;
+	// 	} else {
+	// 		return false;
+	// 	}
+	// }
 
 	// // 法二：先直接判断光线与三角形平面是否有交，然后判断交点是否在内部
 	// bool intersect( const Ray& ray,  Hit& hit , float tmin) override {
@@ -72,6 +72,35 @@ public:
 	// 		return true;
 	// 	}
 	// }
+
+	// 法三：叉乘判断法
+	// Ref: ver.2020
+	bool intersect(const Ray& ray, Hit& hit, float tmin) override {
+        Vector3f o(ray.getOrigin()), dir(ray.getDirection());
+		// 根据叉乘判断是否在三角形内有交
+        Vector3f v0v1 = b - a;
+        Vector3f v0v2 = c - a;
+        Vector3f pvec = Vector3f::cross(dir, v0v2);
+        float det = Vector3f::dot(v0v1, pvec);
+        if (fabs(det) < tmin) return false;
+
+		// 坐标变换
+        float invDet = 1 / det;
+        Vector3f tvec = o - a;
+        float u = Vector3f::dot(tvec, pvec) * invDet;
+        if (u < 0 || u > 1) return false;
+        Vector3f qvec = Vector3f::cross(tvec, v0v1);
+        float v = Vector3f::dot(dir, qvec) * invDet;
+        if (v < 0 || u + v > 1) return false;
+        float t = Vector3f::dot(v0v2, qvec) * invDet;
+        if (t <= tmin || t > hit.getT()) return false;
+
+		// 真正有交
+        Vector3f p(o + dir * t);
+        getUV(p, u, v);
+        hit.set(t, material, getNorm(p), material->getColor(u, v), p);
+        return true;
+    }
 
 	// Ref: ver.2020
 	void setVNorm(const Vector3f& anorm, const Vector3f& bnorm,

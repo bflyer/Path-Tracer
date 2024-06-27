@@ -30,8 +30,13 @@ public:
         if (t < tmin || t > h.getT()) {
             return false;
         } else {
-            auto normal_ = Vector3f::dot(normal, r.getOrigin()) - d > 0 ? normal : -normal;
-            h.set(t, material, normal_.normalized());
+            // auto normal_ = Vector3f::dot(normal, r.getOrigin()) - d > 0 ? normal : -normal;
+            // h.set(t, material, normal_.normalized());
+            // return true;
+            float u, v;
+            Vector3f p(r.getOrigin() + r.getDirection() * t);
+            getUV(u, v, p);
+            h.set(t, material, getNormal(u, v), material->getColor(u, v), p);
             return true;
         }
     }

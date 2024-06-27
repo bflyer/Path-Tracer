@@ -56,9 +56,8 @@ static Vector3f wtColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
         color += hit.getMaterial()->Shade(ray, hit, L, lightColor);
     }
 
-    // TODO: 修改为 hit.getColor()，并修改物体类
     // 不透明度衰减
-    opacity = opacity * material->getDiffuseColor();
+    opacity = opacity * hit.getColor();
     
     // 3.A 若该表面是反射面(Reflection)
     if (material->getType().y() == 1) {
@@ -104,59 +103,6 @@ static Vector3f wtColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
     return color;
 }
 
-// // Whitted Style Path Tracing-2020
-// static Vector3f wtColor(Ray ray, const SceneParser& sceneParser, int depth = 0, int E = 0) {
-//     Group* group = sceneParser.getGroup();
-//     // cf 代表光线的贡献因子（颜色滤镜），随着光线的反射或折射逐渐衰减
-//     Vector3f color(0, 0, 0), cf(1, 1, 1);
-//     while (true) {
-//         if (++depth > TRACE_DEPTH || cf.max() < 1e-3) return color;
-//         // 判断camRay是否和场景有交点,返回最近交点的数据,存储在hit中.
-//         Hit hit;
-//         if (!group->intersect(ray, hit, TMIN)) {
-//             color += sceneParser.getBackgroundColor();
-//             return color;
-//         }
-
-//         // Path Tracing
-//         // 获取下一个交点及相关性质
-//         ray.origin += ray.direction * hit.getT();
-//         Material* material = hit.getMaterial();
-//         Vector3f refColor(material->getDiffuseColor()), N(hit.getNormal());
-
-//         // Emission
-//         color += material->getEmission() * cf;
-//         cf = cf * refColor;
-//         float type = RAND2;
-//         if (type <= material->getType().x()) {  // diffuse
-//             ray.direction = diffDir(N);
-//         } else if (type <= material->getType().x() + material->getType().y()) {  // specular
-//             float cost = Vector3f::dot(ray.direction, N);
-//             ray.direction = (ray.direction - N * (cost * 2)).normalized();
-//         } else {  // refraction
-//             float n = material->getRefractRate();
-//             float R0 = ((1.0 - n) * (1.0 - n)) / ((1.0 + n) * (1.0 + n));
-//             if (Vector3f::dot(N, ray.direction) > 0) {  // inside the medium
-//                 N.negate();
-//                 n = 1 / n;
-//             }
-//             n = 1 / n;
-//             float cost1 = -Vector3f::dot(N, ray.direction);  // 入射角 cosine
-//             float cost2 =
-//                 1.0 - n * n * (1.0 - cost1 * cost1);  // 折射角 cosine
-//             float Rprob = R0 + (1.0 - R0) * pow(1.0 - cost1,
-//                                                 5.0);  // Schlick-approximation
-//             if (cost2 > 0 && RAND2 > Rprob) {           // refraction direction
-//                 ray.direction =
-//                     ((ray.direction * n) + (N * (n * cost1 - sqrt(cost2))))
-//                         .normalized();
-//             } else {  // reflection direction
-//                 ray.direction = (ray.direction + N * (cost1 * 2));
-//             }
-//         }
-//     }
-// }
-
 // Path Tracing
 // Ref: smallpt
 static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, int E = 1) {
@@ -164,27 +110,16 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
     Vector3f color = Vector3f::ZERO;
     Hit hit;
     // 1. 求交：如果没有交点，直接返回背景色
-    // TODO: 返回背景色还是返回黑色呢？
     if (!group->intersect(ray, hit, TMIN)) {
-        cout << "no hit" ;sceneParser.getBackgroundColor().print();
         return sceneParser.getBackgroundColor();
     }
 
     // 交点坐标
     Vector3f hitPos(ray.getOrigin() + ray.getDirection() * hit.getT());
     Material* material = hit.getMaterial();          // the hit object
-    Vector3f f(material->getDiffuseColor());         // BRDF
+    Vector3f f(hit.getColor());         // BRDF
     Vector3f n(hit.getNormal());
     Vector3f nl = Vector3f::dot(n, ray.getDirection()) < 0 ? n : -n;  // ensure the normal points outward
-
-    // // TODO：丢弃时选择 0 还是选择材质的 emission
-    // // 2. R.R.(Russian Roulette)
-    // if (++depth > RR_DEPTH) {
-    //     if (RAND2 < RR_PROBABILITY)
-    //         f = f * (1.0 / RR_PROBABILITY);
-    //     else 
-    //         return material->getEmission() * E;
-    // }
 
     float p = f.max();
     // 2. R.R.(Russian Roulette)
@@ -200,11 +135,6 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
     // 3. 单独处理理想漫反射和理想镜面反射
     // Ideal DIFFUSE reflection(理想漫反射)
     if (material->getType().x() == 1){      
-        // 如果父函数使用了 NEE 且该物体发光，直接返回
-        if (E == 0 && material->getEmission().max() != 0) { 
-            cout << "hey" << endl;
-            return Vector3f::ZERO;         
-        }
         // 记极角(polar angle) 为 theta，记方位角(Azimuthal angle) 为 phi    
         double phi = 2 * M_PI * RAND2;  
         double sinTheta2 = RAND2;              // sin(theta) ^ 2
@@ -221,8 +151,8 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
         // 通过球坐标系转换为笛卡尔坐标系的方式计算出新的反射方向向量 d
         Vector3f d = (u * cos(phi) * sinTheta + v * sin(phi) * sinTheta + w * sqrt(1 - sinTheta2)).normalized();
         float cosHit = Vector3f::dot(d, n);
+        // float c = (cosHit > 0 ? cosHit : -cosHit) * 2 * M_PI;
         float c = (cosHit > 0 ? cosHit : -cosHit);
-        // float c = (cosHit > 0 ? cosHit : -cosHit);
         
         // 对光源采样
         // Loop over any lights
@@ -230,7 +160,7 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
         Hit h1, h2;
         for (Sphere* eObj : group->getEmissionObjList()){
             // 用 Realistic Ray Tracing 创建打向球体的随机光线方向
-            Vector3f sw = (eObj->getCenter() - hitPos);         // 发光球体球心与交点的连线
+            Vector3f sw = (eObj->getCenter() - hitPos).normalized();         // 发光球体球心与交点的连线
             // Vector3f sw = hitPos - eObj->getCenter();         // 发光球体球心与交点的连线
             Vector3f su = Vector3f::cross((fabs(sw.x()) > .1 ? Vector3f(0, 1, 0) : Vector3f(1, 0, 0)), sw).normalized();
             Vector3f sv = Vector3f::cross(sw, su);
@@ -253,7 +183,8 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
                     double omega = 2 * M_PI * (1 - cos_a_max);
                     float cosine = Vector3f::dot(l, nl);
                     cosine = cosine > 0 ? cosine : 0;
-                    e = e + f * (eObj->getMaterial()->getEmission() * cosine * omega) * cos2 / 2 * M_1_PI;  // 1/pi for brdf
+                    e = e + f * (eObj->getMaterial()->getEmission() * cosine * omega) * cos2;  // 1/pi for brdf
+                    // e = e + f * (eObj->getMaterial()->getEmission() * cosine * omega) * cos2 / 2 * M_1_PI;  // 1/pi for brdf
                 }
         }
         // // for (Sphere* eObj : group->getEmissionObjList()){
@@ -284,7 +215,7 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
         // //     }
         // // }
         return material->getEmission() * E + e + f * c * (ptColor(Ray(hitPos, d), sceneParser, depth, 0));
-        return material->getEmission() + f * c * (ptColor(Ray(hitPos, d), sceneParser, depth, 1));
+        // return material->getEmission() + f * c * (ptColor(Ray(hitPos, d), sceneParser, depth, 1));
     }
 
     // Ideal SPECULAR reflection(理想镜面反射)
@@ -352,7 +283,7 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
 //         // 交点坐标
 //         Vector3f hitPos(r.getOrigin() + r.getDirection() * hit.getT());
 //         Material* material = hit.getMaterial();          // the hit object
-//         Vector3f f(material->getDiffuseColor());         // BRDF
+//         Vector3f f(hit.getColor());         // BRDF
 //         Vector3f n(hit.getNormal());
 //         Vector3f nl = Vector3f::dot(n, r.getDirection()) < 0 ? n : -n;  // ensure the normal points outward
         
@@ -520,8 +451,10 @@ class PathTracer {
                         color += radiance(camRay, sceneParser, 0, 1);
                     }
                     // 对超级采样区域内的颜色求平均
-                    color *= invss2;
-                    outImg.SetPixel(x, y, (color / samplesPerPixel) + outImg.GetPixel(x, y));
+                    color = clampVec(color / samplesPerPixel) * invss2;
+                    outImg.SetPixel(x, y, color + outImg.GetPixel(x, y));
+                    // color *= invss2;
+                    // outImg.SetPixel(x, y, (color / samplesPerPixel) + outImg.GetPixel(x, y));
                 }
             }
             outImg.SaveBMP(fout);

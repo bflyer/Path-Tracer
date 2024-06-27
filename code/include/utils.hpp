@@ -26,6 +26,10 @@ inline double clamp(double x) {
     return x < 0 ? 0 : (x > 1 ? 1 : x); 
 }
 
+inline Vector3f clampVec(const Vector3f& v) {
+    return Vector3f(clamp(v.x()), clamp(v.y()), clamp(v.z()));
+}
+
 // 浮点数转整数颜色值：伽马校正(Gamma correction)逆变换
 // 缩放至 [0, 255] 的范围，四舍五入
 inline int toInt(float x) { 
