@@ -153,23 +153,23 @@ public:
     };
 
     std::vector<Object3D *> triangles;
-    // // KD-tree 与 包围盒加速求交
-    // bool intersect(const Ray &ray, Hit &hit, double tmin) override {
-    //     double t;  // 与包围盒相交的 t
-    //     // 若与包围盒无交，直接返回 false
-    //     if (!aabb.intersect(ray, t)) return false;
-    //     // 若与包围盒的交点不如当前交点近，也返回 false
-    //     if (t > hit.getT()) return false;
-    //     // KD-tree 加速求交
-    //     return kdTree->intersect(ray, hit);
-    // }
-
-    // 顺序遍历求交
-    bool intersect (const Ray &ray, Hit &hit, double tmin) override {
-        bool flag = false;
-        for (auto triangle : triangles) flag |= triangle->intersect(ray, hit, TMIN);
-        return flag;
+    // KD-tree 与 包围盒加速求交
+    bool intersect(const Ray &ray, Hit &hit, double tmin) override {
+        double t;  // 与包围盒相交的 t
+        // 若与包围盒无交，直接返回 false
+        if (!aabb.intersect(ray, t)) return false;
+        // 若与包围盒的交点不如当前交点近，也返回 false
+        if (t > hit.getT()) return false;
+        // KD-tree 加速求交
+        return kdTree->intersect(ray, hit);
     }
+
+    // // 顺序遍历求交
+    // bool intersect (const Ray &ray, Hit &hit, double tmin) override {
+    //     bool flag = false;
+    //     for (auto triangle : triangles) flag |= triangle->intersect(ray, hit, TMIN);
+    //     return flag;
+    // }
 
     // 顺序遍历求交
     bool sequentialSearch(const Ray &ray, Hit &hit) {

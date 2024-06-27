@@ -58,7 +58,6 @@ SceneParser::SceneParser(const char *filename) {
     if (num_lights == 0) {
         printf("WARNING:    No lights specified\n");
     }
-    cout << "SceneParser: done parsing" << endl;
 }
 
 SceneParser::~SceneParser() {
@@ -336,6 +335,7 @@ Group *SceneParser::parseGroup() {
     // until the next material index (scoping for the materials is very
     // simple, and essentially ignores any tree hierarchy)
     //
+
     char token[MAX_PARSER_TOKEN_LENGTH];
     getToken(token);
     assert (!strcmp(token, "{"));

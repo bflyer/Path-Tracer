@@ -135,7 +135,7 @@ public:
         return t;
     }
 
-    // 检测光线与整个场景是否有焦点，并更新最近的交点信息至 hit 中
+    // 检测光线与整个场景是否有交点，并更新最近的交点信息至 hit 中
     bool intersect(const Ray& ray, Hit& hit, int tmin = TMIN) const {
         Object3D* nextFace = nullptr;
         return intersect2(root, ray, nextFace, hit);

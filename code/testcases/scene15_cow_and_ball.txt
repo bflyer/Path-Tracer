@@ -24,7 +24,7 @@ Background {
 }
 
 Materials {
-    numMaterials 7
+    numMaterials 11
     Material { 
         diffuseColor 0.97647 0.28235 0.96863
         type 1 0 0
@@ -56,10 +56,30 @@ Materials {
         type 1 0 0
         emission 12 12 12
     }
+    Material {
+        diffuseColor 0.75 0 0
+        type 0 0 1
+        refractRate 1.5
+    }
+    Material {
+        diffuseColor 0 0.75 0
+        type 0 0 1
+        refractRate 1.5
+    }
+    Material {
+        diffuseColor 0 0 0.75
+        type 0 0 1
+        refractRate 1.5
+    }
+    Material {
+        diffuseColor 0.75 0.75 0.75
+        type 0 0 1
+        refractRate 1.5
+    }
 }
 
 Group {
-    numObjects 11
+    numObjects 12
     MaterialIndex 0
     Plane {
         normal 1 0 0
@@ -90,29 +110,30 @@ Group {
         normal 0 -1 0
         offset -81.6
     }
-    MaterialIndex 4
+    MaterialIndex 7
     Sphere {
-        center 27 16.5 47
-        radius 16.5 
+        center 27 70 47
+        radius 5 
     }
-
+    MaterialIndex 8
+    Sphere {
+      center 73 70 78
+      radius 5
+    }
+    MaterialIndex 9
+    Sphere {
+      center 33 70 120
+      radius 5
+    }
+    MaterialIndex 10
+    Sphere {
+      center 50 70 90
+      radius 5
+    }
     MaterialIndex 5
-    Sphere {
-      center 73 16.5 78
-      radius 16.5
-    }
-
-    MaterialIndex 5
-    Sphere {
-      center 33 8 120
-      radius 8
-    }
-
-    MaterialIndex 0
     TriangleMesh {
         obj_file mesh/cube_big.obj
     }
-
     MaterialIndex 6
     TriangleMesh {
         obj_file mesh/squareLight.obj

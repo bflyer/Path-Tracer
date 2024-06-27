@@ -251,16 +251,15 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
     Vector3f f(hit.getColor());         // BRDF
     Vector3f n(hit.getNormal());
     Vector3f nl = Vector3f::dot(n, ray.getDirection()) < 0 ? n : -n;  // ensure the normal points outward
-
-    float p = f.max();
-    // 2. R.R.(Russian Roulette)
-    if (++depth > RR_DEPTH || !p) {  // 大于阈值或者打到光源，开始 R.R.（达到光源一定会返回）
-        if (RAND2 < p)
-            f = f * (1.0 / p);
-        else {
-            return material->getEmission() * E;
-        }
-    }
+    // float p = f.max();
+    // // 2. R.R.(Russian Roulette)
+    // if (++depth > RR_DEPTH || !p) {  // 大于阈值或者打到光源，开始 R.R.（达到光源一定会返回）
+    //     if (RAND2 < p)
+    //         f = f * (1.0 / p);
+    //     else {
+    //         return material->getEmission() * E;
+    //     }
+    // }
 
     float p = f.max();
     // 2. R.R.(Russian Roulette)
@@ -427,6 +426,7 @@ class PathTracer {
             const float invss2 = 1.0f / (superSample * superSample);
             for (int yy = 0; yy < h * superSample; ++yy) {
                 for (int xx = 0; xx < w * superSample; ++xx) {
+                    // cout << "(" << xx << ", " << yy << ")" << endl;
                     // 计算实际输出图像的像素位置
                     int x = xx / superSample;
                     int y = yy / superSample;
