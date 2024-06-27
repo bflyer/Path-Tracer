@@ -11,7 +11,7 @@ public:
     Sphere() : radius(0), ballCenter(Vector3f::ZERO) {}
 
     Sphere(const Vector3f &center, float radius, Material *material)
-        : Object3D(material), ballCenter(center), radius(radius) {}
+        : Object3D(material), ballCenter(center), radius(radius), area(4 * M_PI * radius * radius) {}
 
     ~Sphere() override = default;
 
@@ -93,13 +93,20 @@ public:
             .normalized();
     }
 
+    Vector3f sample() const override {
+        Vector3f randomDir(RAND2, RAND2, RAND2);
+        return ballCenter + randomDir.normalized() * radius;
+    }
+
     Vector3f min() const override { return ballCenter - radius; }
     Vector3f max() const override { return ballCenter + radius; }
     Vector3f center() const override { return ballCenter; }
     std::vector<Object3D *> getFaces() override { return {(Object3D *)this}; } 
+    double getArea() const override{ return area; }
 
 protected:
     Vector3f ballCenter;  // 球心
     float radius;     // 半径
+    double area;
 };
 #endif

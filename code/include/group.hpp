@@ -17,7 +17,7 @@ public:
 
     Group() {}
 
-    explicit Group (const vector<Object3D *> &objs, const vector<Sphere *> &eObjs)
+    explicit Group (const vector<Object3D *> &objs, const vector<Object3D *> &eObjs)
         : objList(objs),
         eObjList(eObjs){
             kdTree = new ObjectKDTree(&objList);
@@ -61,14 +61,14 @@ public:
         return objList.size();
     }
 
-    const std::vector<Sphere*>& getEmissionObjList() const {
+    const std::vector<Object3D*>& getEmissionObjList() const {
         return eObjList;
     }
 
 private:
     ObjectKDTree *kdTree;
     std::vector<Object3D*> objList;
-    std::vector<Sphere*> eObjList;
+    std::vector<Object3D*> eObjList;
 };
 
 #endif

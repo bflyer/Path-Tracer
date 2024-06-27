@@ -9,7 +9,7 @@
 // Base class for all 3d entities.
 class Object3D {
 public:
-    Object3D() : material(nullptr) {}
+    Object3D() : material(nullptr), area(1) {}
 
     virtual ~Object3D() = default;
 
@@ -25,9 +25,12 @@ public:
     virtual Vector3f min() const { return Vector3f(); }
     virtual Vector3f max() const { return Vector3f(); }
     virtual Vector3f center() const { return Vector3f(); }
+    virtual double getArea() const { return getArea(); }
+    virtual Vector3f sample() const { return Vector3f(); }
     
 protected:
     Material *material;
+    double area;
 };
 
 #endif

@@ -11,10 +11,8 @@
 
 class Plane : public Object3D {
 public:
-    Plane() : normal(Vector3f::UP), d(0) {}
-
     Plane(const Vector3f &normal, float d, Material *m)
-        : Object3D(m), d(d), normal(normal) {
+        : Object3D(m), d(d), normal(normal), area(1){
             uaxis = Vector3f::cross(Vector3f::UP, normal);
         }
 
@@ -74,6 +72,7 @@ public:
 protected:
     Vector3f normal, uaxis;  // 平面法向量
     float d;          // 隐式表示中的 d
+    double area;      // 面积
 };
 
 #endif //PLANE_H

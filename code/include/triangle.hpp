@@ -20,7 +20,10 @@ public:
 		: Object3D(m), a(a), b(b), c(c), 
 		an(Vector3f::ZERO), 
 		bn(Vector3f::ZERO), 
-		cn(Vector3f::ZERO) {
+		cn(Vector3f::ZERO),
+		at(Vector2f::ZERO),
+		bt(Vector2f::ZERO),
+		ct(Vector2f::ZERO) {
 		normal = Vector3f::cross((b - a), (c - a)).normalized();
 		d = Vector3f::dot(normal, a);
         bound[0] = minE(minE(a, b), c);
@@ -28,6 +31,8 @@ public:
         cen = (a + b + c) / 3;
         nSet = false;
         tSet = false;
+
+		area = 0.5 * Vector3f::cross(b - a, c - a).length();
 	}
 
 	// // 法一：中心坐标法直接求交
@@ -112,11 +117,22 @@ public:
     }
 
     void setVT(const Vector2f& _at, const Vector2f& _bt, const Vector2f& _ct) {
-        at = _at;
+		at = _at;
         bt = _bt;
         ct = _ct;
         tSet = true;
     }
+
+	double getArea() const override{
+		return area;
+	}
+
+	Vector3f sample() const override {
+		double r1 = RAND2;
+		double r2 = (1 - r1) * RAND2;
+		double r3 = 1 - r1 - r2;
+		return r1 * a + r2 * b + r3 * c;
+	}
 
 	Vector3f min() const override { return bound[0]; }
     Vector3f max() const override { return bound[1]; }
@@ -163,6 +179,9 @@ protected:
         u = uv.x();
         v = uv.y();
     }
+
+private:
+	double area;
 };
 
 #endif 

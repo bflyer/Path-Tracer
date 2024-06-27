@@ -98,7 +98,7 @@ private:
     Material *current_material;
     Group *group;
     std::vector<Object3D *> objs;
-    std::vector<Sphere *> eObjs;
+    std::vector<Object3D *> eObjs;
 };
 
 #endif // SCENE_PARSER_H

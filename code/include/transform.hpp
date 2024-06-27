@@ -21,7 +21,7 @@ public:
     Transform() {}
 
     // TODO: 优化掉 Object3D(obj->getMaterial()
-    Transform(const Matrix4f &m, Object3D *obj) : o(obj), Object3D(obj->getMaterial()) {
+    Transform(const Matrix4f &m, Object3D *obj) : o(obj), area(1), Object3D(obj->getMaterial()) {
         transform = m.inverse();
         bounds[0] = transformPoint(m, o->min());
         bounds[1] = transformPoint(m, o->max());
@@ -51,11 +51,13 @@ public:
     Vector3f max() const override { return bounds[1]; }
     Vector3f center() const override { return bounds[2]; }
     vector<Object3D *> getFaces() override { return {(Object3D *)this}; }
+    double getArea() const override { return area; }
 
 protected:
     Object3D *o; // un-transformed object
     Matrix4f transform;
     Vector3f bounds[3];
+    double area;
 };
 
 #endif //TRANSFORM_H

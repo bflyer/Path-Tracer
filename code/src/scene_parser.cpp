@@ -359,16 +359,14 @@ Group *SceneParser::parseGroup() {
             assert (object != nullptr);
             objs.push_back(object);
             assert (current_material != nullptr);
-            if (current_material->getEmission() != Vector3f(0, 0, 0) && typeid(*object) == typeid(Sphere)) {
-                Sphere* sphere = (Sphere*)object;
-                eObjs.push_back(sphere);
+            if (current_material->getEmission() != Vector3f(0, 0, 0) && (typeid(*object) == typeid(Sphere) || typeid(*object) == typeid(Mesh))) {
+                eObjs.push_back(object);
             }
             count++;
         }
     }
     getToken(token);
     assert (!strcmp(token, "}"));
-
     // return the group
     return new Group(objs, eObjs);
 }
@@ -443,7 +441,6 @@ Mesh *SceneParser::parseTriangleMesh() {
     const char *ext = &filename[strlen(filename) - 4];
     assert(!strcmp(ext, ".obj"));
     Mesh *answer = new Mesh(filename, current_material);
-
     return answer;
 }
 

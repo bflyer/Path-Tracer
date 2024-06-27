@@ -30,7 +30,6 @@ public:
             std::cout << "Cannot open " << filename << "\n";
             return;
         }
-        
         std::vector<TriangleIndex> vIdx, tIdx, nIdx;  // 面的顶点索引
         std::vector<Vector3f> v, vn;         // 顶点集，法线索引集
         std::vector<Vector2f> vt;            // 纹理坐标集
@@ -97,20 +96,23 @@ public:
             TriangleIndex &vIndex = vIdx[triId];
             triangles.push_back((Object3D *)new Triangle(
                 v[vIndex[0]], v[vIndex[1]], v[vIndex[2]], m));
-            // if (tIdx.size()) {
+
             // B. 若纹理坐标合规，则设置纹理坐标
             TriangleIndex &tIndex = tIdx[triId];
             if (tIndex.valid())
                 ((Triangle *)triangles.back())
                     ->setVT(vt[tIndex[0]], vt[tIndex[1]], vt[tIndex[2]]);
-            // }
-            // if (nIdx.size()) {
+
             // C. 若法线合规，则设置法线
             TriangleIndex &nIndex = nIdx[triId];
             if (nIndex.valid())
                 ((Triangle *)triangles.back())
                     ->setVNorm(vn[nIndex[0]], vn[nIndex[1]], vn[nIndex[2]]);
             // }
+        }
+        area = 0;
+        for (auto triangle : triangles) {
+            area += triangle->getArea();
         }
         kdTree = new ObjectKDTree(&triangles);
     }
@@ -142,7 +144,7 @@ public:
 
     struct TriangleIndex {
         TriangleIndex() {
-            x[0] = 0; x[1] = 0; x[2] = 0;
+            x[0] = -1; x[1] = -1; x[2] = -1;
         }
         int &operator[](const int i) { return x[i]; }
         // By Computer Graphics convention, counterclockwise winding is front face
@@ -176,12 +178,18 @@ public:
         return flag;
     }
 
+    Vector3f sample() const override {
+        int id = (int)(RAND * triangles.size());
+        return triangles[id]->sample();
+    }
+
     Vector3f min() const override { return aabb.bounds[0]; }
     Vector3f max() const override { return aabb.bounds[1]; }
     Vector3f center() const override {
         return (aabb.bounds[0] + aabb.bounds[1]) / 2;
     }
     vector<Object3D *> getFaces() override { return {(Object3D *)this}; }
+    double getArea() const override { return area; }
 
     // TODO: 待删
     std::vector<Vector3f> v;
@@ -192,6 +200,7 @@ public:
 private:
     AABB aabb;
     ObjectKDTree *kdTree;
+    double area;
     // Normal can be used for light estimation
     void computeNormal();
 };
