@@ -20,7 +20,7 @@ public:
     Material *getMaterial() const { return material; }
 
     // Intersect Ray with this object. If hit, store information in hit structure.
-    virtual bool intersect(const Ray &r, Hit &h, double tmin) = 0;
+    virtual bool intersect(const Ray &r, Hit &h, float tmin) = 0;
     virtual std::vector<Object3D *> getFaces() { return {this}; }
     virtual Vector3f min() const { return Vector3f(); }
     virtual Vector3f max() const { return Vector3f(); }

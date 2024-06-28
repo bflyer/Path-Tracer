@@ -10,14 +10,21 @@ class Sphere : public Object3D {
 public:
     Sphere() : radius(0), ballCenter(Vector3f::ZERO) {}
 
-    Sphere(const Vector3f &center, float radius, Material *material)
-        : Object3D(material), ballCenter(center), radius(radius), area(4 * M_PI * radius * radius) {}
+    Sphere(const Vector3f &center, float radius, Material *material, Vector3f v)
+        : Object3D(material), 
+        ballCenter(center),
+        radius(radius),
+        area(4 * M_PI * radius * radius),
+        velocity(v) {
+            move = (v != Vector3f::ZERO);
+        }
 
     ~Sphere() override = default;
 
-    bool intersect(const Ray &r, Hit &h, double tmin) override {
+    bool intersect(const Ray &r, Hit &h, float tmin) override {
         // 1. 计算由光源指向球心的向量 l
-        Vector3f o(r.getOrigin()), dir(r.getDirection().normalized());
+        Vector3f o = move ? r.getOrigin() - velocity * RAND2 : r.getOrigin();
+        Vector3f dir(r.getDirection().normalized());
         Vector3f l(ballCenter - o);
 
         // 2. 计算【球心】到【光线所在直线】的投影点（垂足）到光线起点的距离 foot
@@ -70,32 +77,6 @@ public:
         }
     }
 
-    // //Ref: ver.2020
-    // bool intersect(const Ray &r, Hit &h, double tmin) override {
-    //     Vector3f o(r.getOrigin()), dir(r.getDirection());
-    //     Vector3f OC(ballCenter - o);
-    //     float b = -Vector3f::dot(OC, dir);
-    //     float c = OC.squaredLength() - radius * radius;
-    //     float delta = b * b - c;
-    //     if (delta <= 0) return false;
-    //     float sqrt_delta = sqrt(delta);
-    //     float t1 = (-b - sqrt_delta), t2 = (-b + sqrt_delta);
-    //     float t;
-    //     if (t1 <= h.getT() && t1 >= 0)
-    //         t = t1;
-    //     else if (t2 <= h.getT() && t2 >= 0)
-    //         t = t2;
-    //     else
-    //         return false;
-    //     Vector3f OP(o + dir * t - ballCenter);
-    //     Vector3f normal = OP.normalized();
-    //     float u = 0.5 + atan2(normal.x(), normal.z()) / (2 * M_PI),
-    //           v = 0.5 - asin(normal.y()) / M_PI;
-    //     h.set(t, material, getNormal(normal, OP, u, v),
-    //           material->getColor(u, v), o + dir * t);
-    //     return true;
-    // }
-
     const Vector3f& getCenter() const {
         return ballCenter;
     } 
@@ -107,16 +88,24 @@ public:
     // Ref: ver.2020
     // 计算 u-v 坐标下的法向
     Vector3f getNormal(const Vector3f &n, const Vector3f &p, float u, float v) {
-        Vector2f grad(0);
+        // 存储凹凸贴图的梯度信息
+        Vector2f grad(0, 0);
         float f = material->getBump().getDisturb(u, v, grad);
+        
+        // 扰动 f 较小时不做法向扰动
         if (fabs(f) < FLT_EPSILON) return n;
-        float phi = u * 2 * M_PI, theta = M_PI - v * M_PI;
+        // 根据贴图坐标(u, v)计算球面上的纹理坐标。
+        float phi = u * 2 * M_PI;
+        float theta = M_PI - v * M_PI;
+        // 通过扰动梯度信息改变法向量的方向
         Vector3f pu(-p.z(), 0, p.x()),
             pv(p.y() * cos(phi), -radius * sin(theta), p.y() * sin(phi));
+        
+        // 当扰动足够大时改用扰动过的法向
         if (pu.squaredLength() < FLT_EPSILON) return n;
         return Vector3f::cross(pu + n * grad[0] / (2 * M_PI),
                                pv + n * grad[1] / M_PI)
-            .normalized();
+                                .normalized();
     }
 
     Vector3f sample() const override {
@@ -132,7 +121,9 @@ public:
 
 protected:
     Vector3f ballCenter;  // 球心
+    Vector3f velocity;    // 运动模糊用的速度
     float radius;     // 半径
     double area;
+    bool move;
 };
 #endif

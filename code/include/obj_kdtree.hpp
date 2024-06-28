@@ -129,14 +129,14 @@ public:
 
     // 计算光线与给定子空间的交点距离（注意：这是和包围盒相交，不见得和包围盒内物体相交）
     float cuboidIntersect(ObjectKDTreeNode* p, const Ray& ray) const {
-        double t = INF;
+        float t = INF;
         if (!p) return t;
         AABB(p->min, p->max).intersect(ray, t);
         return t;
     }
 
     // 检测光线与整个场景是否有交点，并更新最近的交点信息至 hit 中
-    bool intersect(const Ray& ray, Hit& hit, int tmin = TMIN) const {
+    bool intersect(const Ray& ray, Hit& hit, float tmin = TMIN) const {
         Object3D* nextFace = nullptr;
         return intersect2(root, ray, nextFace, hit);
     }
@@ -150,7 +150,7 @@ public:
                 nextFace = (*p->faces)[i];
                 flag = true;
             }
-        double tl = cuboidIntersect(p->ls, ray),
+        float tl = cuboidIntersect(p->ls, ray),
               tr = cuboidIntersect(p->rs, ray);
         // 根据和包围盒交点深浅决定先递归检查哪个
         if (tl < tr) {

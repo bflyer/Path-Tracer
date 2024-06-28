@@ -51,37 +51,8 @@ Materials {
 }
 
 Group {
-    numObjects 8
-    MaterialIndex 0
-    Plane {
-        normal 1 0 0
-        offset 100
-    }
-    MaterialIndex 1
-    Plane {
-        normal -1 0 0
-        offset -100
-    }
-    MaterialIndex 2
-    Plane {
-        normal 0 0 1
-        offset 100
-    }
-    MaterialIndex 3
-    Plane {
-        normal 0 0 -1
-        offset -100
-    }
-    MaterialIndex 2
-    Plane {
-        normal 0 1 0
-        offset 100
-    }
-    MaterialIndex 2
-    Plane {
-        normal 0 -1 0
-        offset -100
-    }
+    numObjects 2
+    
     MaterialIndex 4
     RevSurface {
         profile BezierCurve {
@@ -94,6 +65,6 @@ Group {
     }
     MaterialIndex 5
     TriangleMesh {
-        obj_file mesh/squareLight.obj
+        obj_file mesh/squareLight_2.obj
     }
 }

@@ -80,7 +80,7 @@ public:
 
 	// 法三：叉乘判断法
 	// Ref: ver.2020
-	bool intersect(const Ray& ray, Hit& hit, double tmin) override {
+	bool intersect(const Ray& ray, Hit& hit, float tmin) override {
         Vector3f o(ray.getOrigin()), dir(ray.getDirection());
 		// 根据叉乘判断是否在三角形内有交
         Vector3f v0v1 = b - a;

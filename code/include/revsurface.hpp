@@ -10,70 +10,6 @@
 #include <math.h>
 const float NEWTON_EPS = 1e-4;
 const int newton_depth = 20;
-// class AABB {
-// public:
-//     AABB()
-//     {
-//         bounds[0] = Vector3f(INF);
-//         bounds[1] = Vector3f(-INF);
-//     }
-
-//     // 初始化AABB
-//     AABB(const Vector3f& min, const Vector3f& max)
-//     {
-//         bounds[0] = min;
-//         bounds[1] = max;
-//     }
-
-//     // 设置AABB
-//     void set(const Vector3f& lo, const Vector3f& hi)
-//     {
-//         bounds[0] = lo;
-//         bounds[1] = hi;
-//     }
-
-//     // 更新AABB的边界
-//     void updateBound(const Vector3f& vec)
-//     {
-//         for (int i = 0; i < 3; ++i) {
-//             bounds[0][i] = bounds[0][i] < vec[i] ? bounds[0][i] : vec[i];
-//             bounds[1][i] = bounds[1][i] < vec[i] ? vec[i] : bounds[1][i];
-//             bounds[0][i] = bounds[0][i] < vec[i] ? bounds[0][i] : vec[i];
-//             bounds[1][i] = bounds[1][i] < vec[i] ? vec[i] : bounds[1][i];
-//         }
-//     }
-
-//     // 检测AABB是否与指定的Ray相交
-//     bool intersect(const Ray& r, float& t_min)
-//     {
-//         Vector3f o(r.getOrigin()), invdir(1 / r.getDirection());
-//         vector<int> sgn = { invdir.x() < 0, invdir.y() < 0, invdir.z() < 0 };
-//         t_min = INF;
-//         float tmin, tmax, tymin, tymax, tzmin, tzmax;
-//         tmin = (bounds[sgn[0]].x() - o.x()) * invdir.x();
-//         tmax = (bounds[1 - sgn[0]].x() - o.x()) * invdir.x();
-//         tymin = (bounds[sgn[1]].y() - o.y()) * invdir.y();
-//         tymax = (bounds[1 - sgn[1]].y() - o.y()) * invdir.y();
-//         if ((tmin > tymax) || (tymin > tmax))
-//             return false;
-//         if (tymin > tmin)
-//             tmin = tymin;
-//         if (tymax < tmax)
-//             tmax = tymax;
-//         tzmin = (bounds[sgn[2]].z() - o.z()) * invdir.z();
-//         tzmax = (bounds[1 - sgn[2]].z() - o.z()) * invdir.z();
-//         if ((tmin > tzmax) || (tzmin > tmax))
-//             return false;
-//         if (tzmin > tmin)
-//             tmin = tzmin;
-//         if (tzmax < tmax)
-//             tmax = tzmax;
-//         t_min = tmin;
-//         return true;
-//     }
-//     // 边界
-//     Vector3f bounds[2];
-// };
 
 class RevSurface : public Object3D {
     Curve* pCurve;
@@ -100,15 +36,14 @@ public:
 
     ~RevSurface() override { delete pCurve; }
 
-    inline bool intersect(const Ray& r, Hit& h, double tmin) override
+    inline bool intersect(const Ray& r, Hit& h, float tmin) override
     {
         return newtonIntersect(r, h);
     }
 
     bool newtonIntersect(const Ray& r, Hit& h)
     {
-        double t;
-        float theta, mu;
+        float t, theta, mu;
         // 检测射线与包围盒的相交性
         if (!aabb.intersect(r, t) || t > h.getT())
             return false; // 检测射线r是否与某个包围盒相交
@@ -124,13 +59,15 @@ public:
             return false;
         if (t < 0 || mu < pCurve->range[0] || mu > pCurve->range[1] || t > h.getT())
             return false;
+        // cout << "mu: " << mu << " theta: " << theta << " t: " << t << endl;
         // 设置Hit对象的属性
+        // material->getColor(theta / (2 * M_PI), mu).print();
         h.set(t, material, normal.normalized(),
             material->getColor(theta / (2 * M_PI), mu), point);
         return true;
     }
 
-    bool newton(const Ray& r, double& t, float& theta, float& mu,
+    bool newton(const Ray& r, float& t, float& theta, float& mu,
         Vector3f& normal, Vector3f& point)
     { // 牛顿迭代法 theta:位置参数 [0,2\pi] mu:位置比例 [0,1]
         // 求解交点和法线
@@ -154,6 +91,7 @@ public:
             if (dist2 < NEWTON_EPS)
                 return true;
             // 牛顿迭代更新参数
+            
             float D = Vector3f::dot(r.getDirection(), normal);
             t -= Vector3f::dot(dmu, Vector3f::cross(dtheta, f)) / D;
             mu -= Vector3f::dot(r.getDirection(), Vector3f::cross(dtheta, f)) / D;

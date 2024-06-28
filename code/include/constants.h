@@ -10,5 +10,5 @@ const int TRACE_DEPTH = 20;
 const int RR_DEPTH = 5;
 const float RR_PROBABILITY = 0.8;
 const float OPACITY_THRESHOLD = 0.001;
-const double TMIN = 1e-3;  // minimum ray-object intersection distance
+const float TMIN = 1e-3;  // minimum ray-object intersection distance
 #endif  // !CONSTANTS_H#
