@@ -48,9 +48,10 @@ Materials {
     Material {
         diffuseColor 0.75 0.45 0.2
         type 1 0 0
-        glossy 0
+        glossy 1
+        ior 12.5
         metallic 1
-        roughness 0.1
+        roughness 0.25
     }
     Material {
         diffuseColor 0 0 0

@@ -271,6 +271,7 @@ Material *SceneParser::parseMaterial() {
     bool glossy = false;
     float metallic = 0.0;
     float roughness = 0.0;
+    float ior = 0.0;
     getToken(token);
     assert (!strcmp(token, "{"));
     while (true) {
@@ -297,13 +298,15 @@ Material *SceneParser::parseMaterial() {
             metallic = readFloat();
         } else if (strcmp(token, "roughness") == 0) {
             roughness = readFloat();
+        } else if (strcmp(token, "ior") == 0) {
+            ior = readFloat();
         } else {
             assert (!strcmp(token, "}"));
             break;
         }
     }
     auto *answer = new Material(diffuseColor, specularColor, emission, shininess,
-                                refractRate, type, texture_filename, bump_filename, glossy, metallic, roughness);
+                                refractRate, type, texture_filename, bump_filename, glossy, metallic, roughness, ior);
     return answer;
 }
 

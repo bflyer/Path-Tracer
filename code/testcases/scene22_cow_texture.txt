@@ -102,9 +102,9 @@ Materials {
         refractRate 1.5
     }
     Material { 
-        diffuseColor 0.5 0.5 0.5 
-        type 0 0 1
-        refractRate 1.4
+        diffuseColor 1 1 1
+        type  0 0 1
+        refractRate 1.5
         texture texture/my_texture/starry_sky.png
     }
 }

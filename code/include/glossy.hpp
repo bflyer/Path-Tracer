@@ -28,39 +28,6 @@ Vector3f F_Schlick(float VoH, Vector3f F0) {
     return F0 + (Vector3f(1.0) - F0) * f;
 }
 
-
-/*
-    1. I is the incident view direction(入射光线的方向)
-    
-    2. N is the normal at the intersection point
-    
-    3. ior is the material refractive index
-    
-    4. kr is the amount of light reflected(计算后得到的反射光的比例)
-*/
-Vector3f fresnel(const Vector3f &I, const Vector3f &N, float ior) {
-        float kr = 0.0;
-        float cosi = clampCos(Vector3f::dot(I, N));
-        float etai = 1, etat = ior;
-        if (cosi > 0) {  std::swap(etai, etat); }
-        // Compute sini using Snell's law
-        float sint = etai / etat * sqrtf(std::max(0.f, 1 - cosi * cosi));
-        // Total internal reflection
-        if (sint >= 1) {
-            kr = 1;
-        }
-        else {
-            float cost = sqrtf(std::max(0.f, 1 - sint * sint));
-            cosi = fabsf(cosi);
-            float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
-            float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
-            kr = (Rs * Rs + Rp * Rp) / 2;
-        }
-        return Vector3f(kr, kr, kr);
-        // As a consequence of the conservation of energy, transmittance is given by:
-        // kt = 1 - kr;
-}
-
 Vector3f mix(Vector3f a, Vector3f b, float t) {
     return t * a + (1 - t) * b;
 }
@@ -108,6 +75,7 @@ Vector3f BRDF_GGX(Vector3f N, Vector3f V, Vector3f L, Vector3f albedo, float met
     // 计算各项
     float D = D_GGX(NoH, roughness);
     float G = G_Smith(NoV, NoL, roughness);
+    // Vector3f F = fresnel(V, N, 1);
     Vector3f F = F_Schlick(VoH, F0);
     
     // 微面元的双向反射分布函数

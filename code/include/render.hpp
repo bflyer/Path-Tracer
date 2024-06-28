@@ -166,13 +166,15 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
                 double cos1 = Vector3f::dot(sampleDir, nl);              // 5. 计算光线与着色点法向量余弦
                 double cos2 = Vector3f::dot(sampleDir, hit.getNormal());  // 6. 计算光线与交点法向量余弦
                 if (material->getGlossy()) {
-                    f = BRDF_GGX(nl, ray.getDirection(), sampleDir, hit.getColor(), material->getMetallic(), material->getRoughness());
+                    // f = BRDF_GGX(nl, ray.getDirection(), sampleDir, hit.getColor(), material->getMetallic(), material->getRoughness());
+                    f = material->eval(ray.getDirection(), sampleDir, nl);
                 }
                 e += eObj->getMaterial()->getEmission() * f * area * cos1 * cos2 / sampleLine.squaredLength() * M_1_PI;  // 7. 计算光源的颜色（乘 1/pi 是调和 pdf(omega)）
             }
         }        
         if (material->getGlossy()) {
-            f = BRDF_GGX(nl, ray.getDirection(), d, hit.getColor(), material->getMetallic(), material->getRoughness());
+            // f = BRDF_GGX(nl, ray.getDirection(), d, hit.getColor(), material->getMetallic(), material->getRoughness());
+            f = material->eval(ray.getDirection(), d, nl);
         }
         return material->getEmission() * E + e + f * (ptColor(Ray(hitPos, d), sceneParser, depth, 0));
     }
@@ -454,7 +456,7 @@ class PathTracer {
             const int superSample = 2;
             const float invss2 = 1.0f / (superSample * superSample);
             for (int yy = 0; yy < h * superSample; ++yy) {
-                // cout << yy << endl;
+                cout << yy << endl;
                 for (int xx = 0; xx < w * superSample; ++xx) {
                     // cout << "(" << xx << ", " << yy << ")" << endl;
                     // if (yy == 12) cout << "xx = " << xx << endl;

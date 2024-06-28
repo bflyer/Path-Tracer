@@ -105,7 +105,7 @@ Materials {
         diffuseColor 1 1 1
         type  0 0 1
         refractRate 1.5
-        bump texture/my_texture/starry_sky.png
+        texture texture/my_texture/starry_sky.png
     }
 }
 
