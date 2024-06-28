@@ -3,6 +3,7 @@
 
 #define minf(a, b) (((a) < (b)) ? (a) : (b))
 #define maxf(a, b) (((a) > (b)) ? (a) : (b))
+#define clampCos(x) ((x > 1) ? 1 : ((x < -1) ? -1 : x))
 #define EPSILON 1e-5f  // 用于分母中以确保不会发生除以零的操作
 
 // GGX分布函数 (D)
@@ -21,10 +22,43 @@ float G_Smith(float NoV, float NoL, float alpha) {
     return 0.5 / (GGXV + GGXL);
 }
 
-// Fresnel项 (F)，这里使用Schlick近似
+// Fresnel 项 (F)，这里使用 Schlick 近似
 Vector3f F_Schlick(float VoH, Vector3f F0) {
     float f = pow(1.0 - VoH, 5.0);
     return F0 + (Vector3f(1.0) - F0) * f;
+}
+
+
+/*
+    1. I is the incident view direction(入射光线的方向)
+    
+    2. N is the normal at the intersection point
+    
+    3. ior is the material refractive index
+    
+    4. kr is the amount of light reflected(计算后得到的反射光的比例)
+*/
+Vector3f fresnel(const Vector3f &I, const Vector3f &N, float ior) {
+        float kr = 0.0;
+        float cosi = clampCos(Vector3f::dot(I, N));
+        float etai = 1, etat = ior;
+        if (cosi > 0) {  std::swap(etai, etat); }
+        // Compute sini using Snell's law
+        float sint = etai / etat * sqrtf(std::max(0.f, 1 - cosi * cosi));
+        // Total internal reflection
+        if (sint >= 1) {
+            kr = 1;
+        }
+        else {
+            float cost = sqrtf(std::max(0.f, 1 - sint * sint));
+            cosi = fabsf(cosi);
+            float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
+            float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
+            kr = (Rs * Rs + Rp * Rp) / 2;
+        }
+        return Vector3f(kr, kr, kr);
+        // As a consequence of the conservation of energy, transmittance is given by:
+        // kt = 1 - kr;
 }
 
 Vector3f mix(Vector3f a, Vector3f b, float t) {
@@ -68,8 +102,8 @@ Vector3f BRDF_GGX(Vector3f N, Vector3f V, Vector3f L, Vector3f albedo, float met
     float VoH = maxf(Vector3f::dot(V, H), 0.0);
     
     // F0，金属的基色反射率
-    Vector3f F0 = Vector3f(0.04); // 默认为非金属的菲涅尔基础值（约等于塑料的）
-    F0 = mix(F0, albedo, metallic); // 根据metallic混合
+    Vector3f F0 = Vector3f(0.8); // 默认为金属的菲涅尔基础值（塑料的约等于 0.04）
+    F0 = mix(F0, albedo, metallic); // 根据 metallic 混合
     
     // 计算各项
     float D = D_GGX(NoH, roughness);
@@ -79,7 +113,7 @@ Vector3f BRDF_GGX(Vector3f N, Vector3f V, Vector3f L, Vector3f albedo, float met
     // 微面元的双向反射分布函数
     Vector3f specular = (D * G * F) / (4.0 * NoV * NoL + EPSILON); // EPSILON是一个小常数，用于防止除以零
     
-    // Diffuse部分，对于金属，diffuse贡献为0
+    // Diffuse 部分，对于金属，diffuse 贡献为 0
     Vector3f diffuse = albedo * (1.0 - metallic) * (1.0 / M_PI);
     
     return diffuse + specular;

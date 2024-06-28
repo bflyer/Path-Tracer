@@ -13,12 +13,12 @@
 // Ref: ver.2020
 class Material {
 public:
-
     explicit Material(const Vector3f &d_color, 
                       const Vector3f &s_color = Vector3f::ZERO, 
                       const Vector3f &e_color = Vector3f::ZERO, 
                       float s = 0, float r = 0, Vector3f t = Vector3f(1, 0, 0),
-                      const char *texture_filename = "", const char *bump_filename = "")
+                      const char *texture_filename = "", const char *bump_filename = "",
+                      bool g = false, float m = 0, float rough = 0)
             : diffuseColor(d_color), 
             specularColor(s_color), 
             emission(e_color),
@@ -26,7 +26,10 @@ public:
             refractRate(r), 
             type(t),
             texture(texture_filename),
-            bump(bump_filename) {
+            bump(bump_filename),
+            glossy(g),
+            metallic(m),
+            roughness(rough) {
                 if (e_color != Vector3f::ZERO && d_color != Vector3f::ZERO) 
                     emission = e_color * d_color;
             }
@@ -47,6 +50,9 @@ public:
     Vector3f getSpecular() const { return specularColor; }
     Vector3f getEmission() const { return emission; }
     Vector3f getType() const { return type; }
+    bool getGlossy() const { return glossy; }
+    float getMetallic() const { return metallic; }
+    float getRoughness() const { return roughness; }
     float getRefractRate() const { return refractRate; }
 
     Texture getBump() const { return bump; }
@@ -73,13 +79,16 @@ public:
     }
 
 protected:
-    Vector3f diffuseColor;         // 漫反射系数
+    Vector3f diffuseColor;         // 漫反射系数（albedo）
     Vector3f specularColor;        // 镜面反射系数
     float shininess;               // 高光指数
     Vector3f emission;             // 自发光系数
     float refractRate;              // 折射率
     Vector3f type;                 // 材质类型(如漫反射、镜面反射、光泽等)
     Texture texture, bump;         // 纹理与凹凸贴图
+    bool glossy;                   // 是否为 glossy 材质
+    float metallic;               // 金属度 [0, 1]
+    float roughness;              // 粗糙度 [0, 1]
     float clamp(float x) { return std::max(float(0), x); }   // 截断函数
 };
 

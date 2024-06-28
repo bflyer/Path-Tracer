@@ -268,6 +268,9 @@ Material *SceneParser::parseMaterial() {
     Vector3f emission(0, 0, 0), type(1, 0, 0);
     float shininess = 0;
     float refractRate = 1.0;
+    bool glossy = false;
+    float metallic = 0.0;
+    float roughness = 0.0;
     getToken(token);
     assert (!strcmp(token, "{"));
     while (true) {
@@ -288,13 +291,19 @@ Material *SceneParser::parseMaterial() {
             type = readVector3f();
         } else if (strcmp(token, "emission") == 0) {
             emission = readVector3f();
+        } else if (strcmp(token, "glossy") == 0) {
+            glossy = (bool)readInt();
+        } else if (strcmp(token, "metallic") == 0) {
+            metallic = readFloat();
+        } else if (strcmp(token, "roughness") == 0) {
+            roughness = readFloat();
         } else {
             assert (!strcmp(token, "}"));
             break;
         }
     }
     auto *answer = new Material(diffuseColor, specularColor, emission, shininess,
-                                refractRate, type, texture_filename, bump_filename);
+                                refractRate, type, texture_filename, bump_filename, glossy, metallic, roughness);
     return answer;
 }
 
