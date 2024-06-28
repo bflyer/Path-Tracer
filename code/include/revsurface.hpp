@@ -1,111 +1,194 @@
-// #ifndef REVSURFACE_HPP
-// #define REVSURFACE_HPP
+#ifndef REVSURFACE_HPP
+#define REVSURFACE_HPP
 
-// #include "object3d.hpp"
-// #include "curve.hpp"
-// #include <tuple>
+#include <tuple>
 
-// const int resolution = 10;
-// const int NEWTON_STEPS = 20;
-// const float NEWTON_EPS = 1e-4;
-// class RevSurface : public Object3D {
-//     Curve *pCurve;
-//     AABB aabb;
-
+#include "curve.hpp"
+#include "object3d.hpp"
+#include "triangle.hpp"
+#include "constants.h"
+#include <math.h>
+const float NEWTON_EPS = 1e-4;
+const int newton_depth = 20;
+// class AABB {
 // public:
-//     RevSurface(Curve *pCurve, Material* material) : pCurve(pCurve), Object3D(material) {
-//         // Check flat.
-//         for (const auto &cp : pCurve->getControls()) {
-//             if (cp.z() != 0.0) {
-//                 printf("Profile of revSurface must be flat on xy plane.\n");
-//                 exit(0);
-//             }
-//         }
-//         aabb.set(Vector3f(-pCurve->radius, pCurve->ymin - 3, -pCurve->radius),
-//                  Vector3f(pCurve->radius, pCurve->ymax + 3, pCurve->radius));
+//     AABB()
+//     {
+//         bounds[0] = Vector3f(INF);
+//         bounds[1] = Vector3f(-INF);
 //     }
 
-//     ~RevSurface() override {
-//         delete pCurve;
+//     // 初始化AABB
+//     AABB(const Vector3f& min, const Vector3f& max)
+//     {
+//         bounds[0] = min;
+//         bounds[1] = max;
 //     }
 
-//     bool intersect(const Ray &r, Hit &h, double tmin) override {
-//         float theta, mu;
-//         double t;
-//         // 1. 先判断和包围盒是否相交，以及是否小于已知最近交点
-//         if (!aabb.intersect(r, t) || t > h.getT()) return false;
-//         // 2. 获取 u-v 坐标
-//         getUV(r, t, theta, mu);
-//         Vector3f normal, point;
-//         // cout << "begin!" << endl;
-//         // 3. 若未找到有效交点，返回无交点
-//         if (!newton(r, t, theta, mu, normal, point)) {
-//             // cout << "Not Intersect! t:" << t << " theta: " << theta / (2 *
-//             // M_PI)
-//             //      << " mu: " << mu << endl;
-//             return false;
+//     // 设置AABB
+//     void set(const Vector3f& lo, const Vector3f& hi)
+//     {
+//         bounds[0] = lo;
+//         bounds[1] = hi;
+//     }
+
+//     // 更新AABB的边界
+//     void updateBound(const Vector3f& vec)
+//     {
+//         for (int i = 0; i < 3; ++i) {
+//             bounds[0][i] = bounds[0][i] < vec[i] ? bounds[0][i] : vec[i];
+//             bounds[1][i] = bounds[1][i] < vec[i] ? vec[i] : bounds[1][i];
+//             bounds[0][i] = bounds[0][i] < vec[i] ? bounds[0][i] : vec[i];
+//             bounds[1][i] = bounds[1][i] < vec[i] ? vec[i] : bounds[1][i];
 //         }
-//         // 4. 检查参数是否在合理范围内
-//         if (!isnormal(mu) || !isnormal(theta) || !isnormal(t)) return false;
-//         if (t < 0 || mu < pCurve->range[0] || mu > pCurve->range[1] ||
-//             t > h.getT())
+//     }
+
+//     // 检测AABB是否与指定的Ray相交
+//     bool intersect(const Ray& r, float& t_min)
+//     {
+//         Vector3f o(r.getOrigin()), invdir(1 / r.getDirection());
+//         vector<int> sgn = { invdir.x() < 0, invdir.y() < 0, invdir.z() < 0 };
+//         t_min = INF;
+//         float tmin, tmax, tymin, tymax, tzmin, tzmax;
+//         tmin = (bounds[sgn[0]].x() - o.x()) * invdir.x();
+//         tmax = (bounds[1 - sgn[0]].x() - o.x()) * invdir.x();
+//         tymin = (bounds[sgn[1]].y() - o.y()) * invdir.y();
+//         tymax = (bounds[1 - sgn[1]].y() - o.y()) * invdir.y();
+//         if ((tmin > tymax) || (tymin > tmax))
 //             return false;
-//         h.set(t, material, normal.normalized(),
-//               material->getColor(theta / (2 * M_PI), mu), point);
-//         // cout << "Intersect! t:" << t << " theta: " << theta / (2 * M_PI)
-//         //      << " mu: " << mu << endl;
+//         if (tymin > tmin)
+//             tmin = tymin;
+//         if (tymax < tmax)
+//             tmax = tymax;
+//         tzmin = (bounds[sgn[2]].z() - o.z()) * invdir.z();
+//         tzmax = (bounds[1 - sgn[2]].z() - o.z()) * invdir.z();
+//         if ((tmin > tzmax) || (tzmin > tmax))
+//             return false;
+//         if (tzmin > tmin)
+//             tmin = tzmin;
+//         if (tzmax < tmax)
+//             tmax = tzmax;
+//         t_min = tmin;
 //         return true;
 //     }
-
-//     bool newton(const Ray &r, double &t, float &theta, float &mu,
-//                 Vector3f &normal, Vector3f &point) {
-//         Vector3f dmu, dtheta;
-//         for (int i = 0; i < NEWTON_STEPS; ++i) {
-//             if (theta < 0.0) theta += 2 * M_PI;
-//             if (theta >= 2 * M_PI) theta = fmod(theta, 2 * M_PI);
-//             if (mu >= 1) mu = 1.0 - FLT_EPSILON;
-//             if (mu <= 0) mu = FLT_EPSILON;
-//             point = getPoint(theta, mu, dtheta, dmu);
-//             Vector3f f = r.origin + r.direction * t - point;
-//             float dist2 = f.squaredLength();
-//             // cout << "Iter " << i + 1 << " t: " << t
-//             //      << " theta: " << theta / (2 * M_PI) << " mu: " << mu
-//             //      << " dist2: " << dist2 << endl;
-//             normal = Vector3f::cross(dmu, dtheta);
-//             if (dist2 < NEWTON_EPS) return true;
-//             float D = Vector3f::dot(r.direction, normal);
-//             t -= Vector3f::dot(dmu, Vector3f::cross(dtheta, f)) / D;
-//             mu -= Vector3f::dot(r.direction, Vector3f::cross(dtheta, f)) / D;
-//             theta += Vector3f::dot(r.direction, Vector3f::cross(dmu, f)) / D;
-//         }
-//         return false;
-//     }
-
-//     Vector3f getPoint(const float &theta, const float &mu, Vector3f &dtheta,
-//                       Vector3f &dmu) {
-//         Vector3f pt;
-//         Quat4f rot;
-//         rot.setAxisAngle(theta, Vector3f::UP);
-//         Matrix3f rotMat = Matrix3f::rotation(rot);
-//         CurvePoint cp = pCurve->getPoint(mu);
-//         pt = rotMat * cp.V;
-//         dmu = rotMat * cp.T;
-//         dtheta = Vector3f(-cp.V.x() * sin(theta), 0, -cp.V.x() * cos(theta));
-//         return pt;
-//     }
-
-//     void getUV(const Ray &r, const float &t, float &theta, float &mu) {
-//         Vector3f pt(r.origin + r.direction * t);
-//         theta = atan2(-pt.z(), pt.x()) + M_PI;
-//         mu = (pCurve->ymax - pt.y()) / (pCurve->ymax - pCurve->ymin);
-//     }
-
-//     Vector3f min() const override { return aabb.bounds[0]; }
-//     Vector3f max() const override { return aabb.bounds[1]; }
-//     Vector3f center() const override {
-//         return (aabb.bounds[0] + aabb.bounds[1]) / 2;
-//     }
-//     vector<Object3D *> getFaces() override { return {(Object3D *)this}; }
+//     // 边界
+//     Vector3f bounds[2];
 // };
 
-// #endif // REVSURFACE_HPP
+class RevSurface : public Object3D {
+    Curve* pCurve;
+    AABB aabb;
+    // Definition for drawable surface.
+    typedef std::tuple<unsigned, unsigned, unsigned> Tup3u;
+    std::vector<Triangle> triangles;
+
+public:
+    RevSurface(Curve* pCurve, Material* material)
+        : pCurve(pCurve)
+        , Object3D(material)
+    {
+        // Check flat.
+        for (const auto& cp : pCurve->getControls()) {
+            if (cp.z() != 0.0) {
+                printf("Profile of revSurface must be flat on xy plane.\n");
+                exit(0);
+            }
+        }
+        aabb.set(Vector3f(-pCurve->radius, pCurve->ymin - 3, -pCurve->radius),
+            Vector3f(pCurve->radius, pCurve->ymax + 3, pCurve->radius));
+    }
+
+    ~RevSurface() override { delete pCurve; }
+
+    inline bool intersect(const Ray& r, Hit& h, double tmin) override
+    {
+        return newtonIntersect(r, h);
+    }
+
+    bool newtonIntersect(const Ray& r, Hit& h)
+    {
+        double t;
+        float theta, mu;
+        // 检测射线与包围盒的相交性
+        if (!aabb.intersect(r, t) || t > h.getT())
+            return false; // 检测射线r是否与某个包围盒相交
+        // 检测射线与包围盒的相交性
+        getUV(r, t, theta, mu); // 计算射线与曲线的参数值theta和mu。
+        Vector3f normal, point;
+        // 利用牛顿迭代法求交点和法线
+        if (!newton(r, t, theta, mu, normal, point)) {
+            return false;
+        }
+        // 检查参数值的有效性
+        if (!isnormal(mu) || !isnormal(theta) || !isnormal(t))
+            return false;
+        if (t < 0 || mu < pCurve->range[0] || mu > pCurve->range[1] || t > h.getT())
+            return false;
+        // 设置Hit对象的属性
+        h.set(t, material, normal.normalized(),
+            material->getColor(theta / (2 * M_PI), mu), point);
+        return true;
+    }
+
+    bool newton(const Ray& r, double& t, float& theta, float& mu,
+        Vector3f& normal, Vector3f& point)
+    { // 牛顿迭代法 theta:位置参数 [0,2\pi] mu:位置比例 [0,1]
+        // 求解交点和法线
+        Vector3f dmu, dtheta;
+        for (int i = 0; i < newton_depth; ++i) {
+            // 规范化角度
+            if (theta < 0.0)
+                theta += 2 * M_PI;
+            if (theta >= 2 * M_PI)
+                theta = fmod(theta, 2 * M_PI);
+            // 限制参数范围
+            if (mu >= 1)
+                mu = 1.0 - FLT_EPSILON;
+            if (mu <= 0)
+                mu = FLT_EPSILON;
+            // 计算交点和切向量
+            point = getPoint(theta, mu, dtheta, dmu);
+            Vector3f f = r.getOrigin() + r.getDirection() * t - point;
+            float dist2 = f.squaredLength();
+            normal = Vector3f::cross(dmu, dtheta);
+            if (dist2 < NEWTON_EPS)
+                return true;
+            // 牛顿迭代更新参数
+            float D = Vector3f::dot(r.getDirection(), normal);
+            t -= Vector3f::dot(dmu, Vector3f::cross(dtheta, f)) / D;
+            mu -= Vector3f::dot(r.getDirection(), Vector3f::cross(dtheta, f)) / D;
+            theta += Vector3f::dot(r.getDirection(), Vector3f::cross(dmu, f)) / D;
+        }
+        return false;
+    }
+
+    void getUV(const Ray& r, const float& t, float& theta, float& mu)
+    {
+        Vector3f pt(r.getOrigin() + r.getDirection() * t);
+        theta = atan2(-pt.z(), pt.x()) + M_PI;
+        mu = (pCurve->ymax - pt.y()) / (pCurve->ymax - pCurve->ymin);
+    }
+
+    Vector3f getPoint(const float& theta, const float& mu, Vector3f& dtheta,
+        Vector3f& dmu)
+    {
+        //根据给定的参数值theta和mu，计算参数曲面上对应点的位置，并计算该点处的切向量关于theta和mu的偏导数。
+        Vector3f pt;
+        Quat4f rot;
+        rot.setAxisAngle(theta, Vector3f::UP);
+        Matrix3f rotMat = Matrix3f::rotation(rot);
+        CurvePoint cp;
+        pCurve->evaluate(mu);
+        for (int j = 0; j < pCurve->s.size(); ++j) {
+            cp.V += pCurve->controls[pCurve->lsk + j] * pCurve->s[j];
+            cp.T += pCurve->controls[pCurve->lsk + j] * pCurve->ds[j];
+        }
+        pt = rotMat * cp.V;
+        dmu = rotMat * cp.T;
+        dtheta = Vector3f(-cp.V.x() * sin(theta), 0, -cp.V.x() * cos(theta));
+        return pt;
+    }
+
+};
+
+#endif // REVSURFACE_HPP

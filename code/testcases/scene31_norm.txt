@@ -1,0 +1,99 @@
+PerspectiveCamera {
+    center 0 0 10
+    direction 0 0 -1
+    up 0 1 0
+    angle 45
+    width 400
+    height 400
+}
+
+Lights {
+    numLights 1
+    DirectionalLight {
+        direction 0.0 0 -5
+        color 0.9 0.9 0.9
+    }
+}
+
+Background {
+    color 0.3 0.2 0.3
+}
+
+Materials {
+    numMaterials 6
+    Material { 
+        diffuseColor 0.75 0.25 0.25
+        type 1 0 0
+    }
+    Material { 
+        diffuseColor 0.25 0.25 0.75 
+        type 1 0 0
+    }
+    Material { 
+        diffuseColor 0.75 0.75 0.75
+        type 1 0 0
+    }
+    Material { 
+        diffuseColor 0.0 0.0 0.0
+        type 1 0 0
+    }
+    Material {
+	  diffuseColor 0.9 0.9 1
+	  specularColor 0.7 0.7 0.7
+	  shininess 20
+	}
+    Material {
+        diffuseColor 0 0 0
+        specularColor 1 1 1
+        type 1 0 0
+        emission 12 12 12
+    }
+}
+
+Group {
+    numObjects 8
+    MaterialIndex 0
+    Plane {
+        normal 1 0 0
+        offset 100
+    }
+    MaterialIndex 1
+    Plane {
+        normal -1 0 0
+        offset -100
+    }
+    MaterialIndex 2
+    Plane {
+        normal 0 0 1
+        offset 100
+    }
+    MaterialIndex 3
+    Plane {
+        normal 0 0 -1
+        offset -100
+    }
+    MaterialIndex 2
+    Plane {
+        normal 0 1 0
+        offset 100
+    }
+    MaterialIndex 2
+    Plane {
+        normal 0 -1 0
+        offset -100
+    }
+    MaterialIndex 4
+    RevSurface {
+        profile BezierCurve {
+            controls
+                [ -2 2 0 ]
+                [ -4 0 0 ]
+                [ 0 0 0 ]
+                [ -2 -2 0 ]
+        }
+    }
+    MaterialIndex 5
+    TriangleMesh {
+        obj_file mesh/squareLight.obj
+    }
+}

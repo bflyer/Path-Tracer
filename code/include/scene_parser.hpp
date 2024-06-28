@@ -75,10 +75,9 @@ private:
     Triangle *parseTriangle();
     Mesh *parseTriangleMesh();
     Transform *parseTransform();
-    // TODO: 加上曲线
-    // Curve *parseBezierCurve();
-    // Curve *parseBsplineCurve();
-    // RevSurface *parseRevSurface();
+    Curve *parseBezierCurve();
+    Curve *parseBsplineCurve();
+    RevSurface *parseRevSurface();
 
     int getToken(char token[MAX_PARSER_TOKEN_LENGTH]);
 

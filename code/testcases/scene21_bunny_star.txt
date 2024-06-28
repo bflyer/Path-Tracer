@@ -24,7 +24,7 @@ Background {
 }
 
 Materials {
-    numMaterials 17
+    numMaterials 18
     Material { 
         diffuseColor 0.9607843137254902 0.6235294117647059 0.8705882352941177
         type 1 0 0
@@ -38,7 +38,7 @@ Materials {
         type 1 0 0
     }
     Material { 
-        diffuseColor 0.0 0.0 0.0
+        diffuseColor 0 0 0
         type 1 0 0
     }
     Material {
@@ -107,6 +107,11 @@ Materials {
         refractRate 1.5
         texture texture/my_texture/starry_sky.png
     }
+    Material { 
+        diffuseColor 0.25 0.25 0.75
+        type 0 0 1
+        refractRate 1.5
+    }
 }
 
 Group {
@@ -136,7 +141,7 @@ Group {
         normal 0 1 0
         offset 0
     }
-    MaterialIndex 2
+    MaterialIndex 17
     Plane {
         normal 0 -1 0
         offset -81.6

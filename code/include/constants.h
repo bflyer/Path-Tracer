@@ -1,7 +1,7 @@
 // REF: ver.2020
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
-const float INF = 1e38;
+const float INF= 0x3f3f3f3f;
 const float rrStopProbability = 0.1;
 const int CKPT_INTERVAL = 5;
 const float INIT_RADIUS = 0.0001;
