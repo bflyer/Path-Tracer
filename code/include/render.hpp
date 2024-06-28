@@ -425,6 +425,7 @@ class PathTracer {
             const int superSample = 2;
             const float invss2 = 1.0f / (superSample * superSample);
             for (int yy = 0; yy < h * superSample; ++yy) {
+                cout << yy << endl;
                 for (int xx = 0; xx < w * superSample; ++xx) {
                     // cout << "(" << xx << ", " << yy << ")" << endl;
                     // 计算实际输出图像的像素位置

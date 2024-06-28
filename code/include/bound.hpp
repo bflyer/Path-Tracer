@@ -34,9 +34,9 @@ public:
     
     // 还没进来就已出去则无交点
     bool intersect(const Ray &r, double &t_min) {
-        Vector3f o(r.getOrigin()), invdir(1 / r.getDirection());
-        Vector3f t0 = (bounds[0] - o) * invdir;
-        Vector3f t1 = (bounds[1] - o) * invdir;
+        Vector3f o(r.getOrigin()), invDir(1 / r.getDirection());
+        Vector3f t0 = (bounds[0] - o) * invDir;
+        Vector3f t1 = (bounds[1] - o) * invDir;
         double tmin = INF, tmax = -INF;
         if (t0.x() < t1.x()) {
             tmin = t0.x();

@@ -46,6 +46,7 @@ class ObjectKDTree {
     // 按照 KD-tree 算法建树
     ObjectKDTreeNode* build(int depth, int axis, vector<Object3D*>* faces,
                             const Vector3f& min, const Vector3f& max) {
+        std::cout << "build: depth=" << depth << " axis=" << axis << std::endl;
         ObjectKDTreeNode* p = new ObjectKDTreeNode;
         p->min = min;
         p->max = max;
@@ -72,6 +73,7 @@ class ObjectKDTree {
 
         const int max_faces = 128;  // 叶节点最大容量
         const int max_depth = 24;   // 最大树深
+        std::cout << "faces size: " << p->faces->size() << std::endl;
 
         // 递归建树
         if (p->faces->size() > max_faces && depth < max_depth) {

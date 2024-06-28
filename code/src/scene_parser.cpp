@@ -88,15 +88,21 @@ void SceneParser::parseFile() {
     char token[MAX_PARSER_TOKEN_LENGTH];
     while (getToken(token)) {
         if (!strcmp(token, "PerspectiveCamera")) {
+            cout << "parsePerspectiveCamera" << endl;
             parsePerspectiveCamera();
         } else if (!strcmp(token, "Background")) {
+            cout << "parseBackground" << endl;
             parseBackground();
         } else if (!strcmp(token, "Lights")) {
+            cout << "parseLights" << endl;
             parseLights();
         } else if (!strcmp(token, "Materials")) {
+            cout << "parseMaterials" << endl;
             parseMaterials();
         } else if (!strcmp(token, "Group")) {
+            cout << "parseGroup" << endl;
             group = parseGroup();
+            cout << "group parsed" << endl;
         } else {
             printf("Unknown token in parseFile: '%s'\n", token);
             exit(0);
@@ -440,7 +446,9 @@ Mesh *SceneParser::parseTriangleMesh() {
     assert (!strcmp(token, "}"));
     const char *ext = &filename[strlen(filename) - 4];
     assert(!strcmp(ext, ".obj"));
+    cout << "Loading mesh: " << filename << endl;
     Mesh *answer = new Mesh(filename, current_material);
+    cout << "Mesh loaded: " << filename << endl;
     return answer;
 }
 
