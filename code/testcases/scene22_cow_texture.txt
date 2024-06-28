@@ -102,10 +102,10 @@ Materials {
         refractRate 1.5
     }
     Material { 
-        diffuseColor 1 1 1
-        type  0 0 1
-        refractRate 1.5
-        bump texture/my_texture/starry_sky.png
+        diffuseColor 0.5 0.5 0.5 
+        type 0 0 1
+        refractRate 1.4
+        texture texture/my_texture/starry_sky.png
     }
 }
 
@@ -177,8 +177,13 @@ Group {
       radius 5
     }
     MaterialIndex 16
-    TriangleMesh {
-        obj_file mesh/bunny_200_big.obj
+    Transform {
+		Scale  0.6 0.6 0.6 
+		Translate  50 0 250
+        YRotate  135	
+        TriangleMesh {
+            obj_file mesh/spot_big.obj
+        }
     }
     MaterialIndex 6
     TriangleMesh {

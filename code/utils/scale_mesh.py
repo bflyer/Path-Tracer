@@ -37,13 +37,13 @@ def transform_file(input_filename, output_filename, x_mult=1, y_mult=1, z_mult=1
     print(f"处理完成，结果已保存至 {output_filename}")
 
 # 定义输入输出文件名以及变换参数
-input_filename = "input.txt"
-output_filename = "output.txt"
+input_filename = "./code/mesh/spot_big.txt"
+output_filename = "./code/mesh/out_spot_big.txt"
 x_multiplier = 50
 y_multiplier = 50
 z_multiplier = 50
 x_translation = 50
-y_translation = -6
+y_translation = 30
 z_translation = 80
 
 # 调用函数处理文件

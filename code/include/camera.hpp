@@ -5,6 +5,7 @@
 #include <vecmath.h>
 #include <float.h>
 #include <cmath>
+#include "utils.hpp"
 
 
 class Camera {
@@ -42,7 +43,8 @@ public:
     }
 
     virtual void resize(int w, int h) {
-        width = w; height = h;
+        width = w; 
+        height = h;
     }
 
 protected:
@@ -87,13 +89,13 @@ public:
     //     return Ray(center, c2w * d_rc);
     // }
     Ray generateRay(const Vector2f &point) override {
-        float csx = (point.x() - cx) / fx;
-        float csy = (point.y() - cy) / fy;
-        Vector3f dir(csx, -csy, 1.0f);
+        float csx = focalLength * (point.x() - cx) / fx;
+        float csy = focalLength * (point.y() - cy) / fy;
+        float dx = RAND * aperture, dy = RAND * aperture;
+        Vector3f dir(csx - dx, -csy - dy, focalLength);
         Matrix3f R(this->horizontal, -this->up, this->direction);
-        dir = R * dir;
-        dir = dir / dir.length();
-        Ray ray(this->center, dir);
+        dir = (R * dir).normalized();
+        Ray ray(this->center + horizontal * dx - up * dy, dir);
         return ray;
     }
 
@@ -103,7 +105,7 @@ private:
     float fy;
     float cx;
     float cy;
-    float fovyd;
+    float fovyd;            // 相机的垂直视野角度（Field of View in Y direction, degrees）
     float aperture;         // 光圈
     float focalLength;      // 焦距
     Matrix3f c2w;

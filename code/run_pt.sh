@@ -25,3 +25,7 @@ mkdir -p output
 # build/PA1 testcases/scene19_bunny_texture.txt output/scene19_bunny_texture.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene20_bunny_bump.txt output/20_bunny_bump.bmp $METHOD $SAMPLES
 build/PA1 testcases/scene21_bunny_star.txt output/scene21_bunny_star.bmp $METHOD $SAMPLES
+# build/PA1 testcases/scene22_cow_texture.txt output/scene22_cow_texture.bmp $METHOD $SAMPLES
+# build/PA1 testcases/scene23_dof.txt output/scene23_dof.bmp $METHOD $SAMPLES
+# build/PA1 testcases/scene24_dof.txt output/scene24_dof.bmp $METHOD $SAMPLES
+# build/PA1 testcases/scene24_dof_0.txt output/scene24_dof_0.bmp $METHOD $SAMPLES
