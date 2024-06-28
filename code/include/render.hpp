@@ -240,11 +240,11 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
     Group* group = sceneParser.getGroup();
     Vector3f color = Vector3f::ZERO;
     Hit hit;
-
     // 1. 求交：如果没有交点，直接返回背景色
     if (!group->intersect(ray, hit, TMIN)) {
         return sceneParser.getBackgroundColor();
     }
+
     // 交点坐标
     Vector3f hitPos(ray.getOrigin() + ray.getDirection() * hit.getT());
     Material* material = hit.getMaterial();          // the hit object
@@ -260,6 +260,10 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
     //         return material->getEmission() * E;
     //     }
     // }
+    // if(material->getType().y() == 0.5) {
+    //     cout << "f = "; f.print();
+    // }
+        
 
     float p = f.max();
     // 2. R.R.(Russian Roulette)
@@ -361,6 +365,173 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
         ptColor(reflRay, sceneParser, depth) * Re + ptColor(Ray(hitPos, tdir), sceneParser, depth) * Tr);
 }
 
+// // Debug 版本
+// static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, int E = 1) {
+//     Group* group = sceneParser.getGroup();
+//     Vector3f color = Vector3f::ZERO;
+//     Hit hit;
+//     if (E == 2) cout << "----------------------------------------------------depth: " << depth << endl;
+//     // 1. 求交：如果没有交点，直接返回背景色
+//     if (!group->intersect(ray, hit, TMIN)) {
+//         if (E == 2) cout << "Not hit " << depth << endl;
+//         return sceneParser.getBackgroundColor();
+//     }
+//     if (E == 2) cout << "hit " << endl;
+//     // 交点坐标
+//     Vector3f hitPos(ray.getOrigin() + ray.getDirection() * hit.getT());
+//     Material* material = hit.getMaterial();          // the hit object
+//     Vector3f f(hit.getColor());         // BRDF
+//     Vector3f n(hit.getNormal());
+//     Vector3f nl = Vector3f::dot(n, ray.getDirection()) < 0 ? n : -n;  // ensure the normal points outward
+//     // float p = f.max();
+//     // // 2. R.R.(Russian Roulette)
+//     // if (++depth > RR_DEPTH || !p) {  // 大于阈值或者打到光源，开始 R.R.（达到光源一定会返回）
+//     //     if (RAND2 < p)
+//     //         f = f * (1.0 / p);
+//     //     else {
+//     //         return material->getEmission() * E;
+//     //     }
+//     // }
+
+//     float p = f.max();
+//     // 2. R.R.(Russian Roulette)
+//     if (++depth > RR_DEPTH || material->getEmission() != Vector3f::ZERO) {  // 大于阈值或者打到光源，开始 R.R.（达到光源一定会返回）
+//         if (RAND2 >= 0.8 || material->getEmission() != Vector3f::ZERO) {      // 1 - p 概率丢弃，以及打到光源丢弃
+//             if (E == 2) cout << "R.R. " << depth << endl;
+//             return material->getEmission() * E;
+//         }
+//         else {
+//             if (E == 2) cout << "丢弃" << depth << endl;
+//             f = f * (1.0 / p);
+//         }
+//     }
+//     if (depth > 10) return material->getEmission() * E;
+//     // TODO：if (f != 0) 发光乘上 f
+    
+
+//     // 3. 单独处理理想漫反射和理想镜面反射
+//     // Ideal DIFFUSE reflection(理想漫反射)
+//     if (material->getType().x() == 1){      
+//         // 记极角(polar angle) 为 theta，记方位角(Azimuthal angle) 为 phi    
+//         double phi = 2 * M_PI * RAND2;  
+//         double sinTheta2 = RAND2;              // sin(theta) ^ 2
+//         double sinTheta = sqrt(sinTheta2);     // sin(theta)
+//         if (E == 2) cout << "Diffuse " << endl;
+//         // 构建局部坐标系
+//         Vector3f w = nl;  // 表面的单位法线
+//         // 通过判断法线向量 w 的 x 分量绝对值是否大于 0.1 来决定
+//         // 构造正交基的方式，以避免因法线几乎平行于 x 轴而导致的
+//         // 除以零问题。
+//         Vector3f u = (Vector3f::cross((fabs(w.x()) > .1 ? Vector3f(0, 1, 0) : Vector3f(1, 0, 0)), w)).normalized();
+//         Vector3f v = Vector3f::cross(w, u);
+//         // 利用随机数 phi 和 sinTheta，以及正交基 u 和 v，
+//         // 通过球坐标系转换为笛卡尔坐标系的方式计算出新的反射方向向量 d
+//         Vector3f d = (u * cos(phi) * sinTheta + v * sin(phi) * sinTheta + w * sqrt(1 - sinTheta2)).normalized();
+//         float cosHit = Vector3f::dot(d, n);
+//         // float c = (cosHit > 0 ? cosHit : -cosHit);
+//         // 对光源采样
+//         // Loop over any lights
+//         Vector3f e = Vector3f::ZERO;
+//         for (Object3D* eObj : group->getEmissionObjList()){
+//             Hit h;
+//             if (E == 2) {
+//                 cout << "Light " << endl;
+//             }
+//             double area = eObj->getArea();        // 1. 获取光源面积
+//             Vector3f samplePoint = eObj->sample();       // 2. 对光源采样
+//             Vector3f sampleLine = samplePoint - hitPos;  // 着色点采样点的连线
+//             Vector3f sampleDir = sampleLine.normalized();   // 3. 得到光线方向
+//             if( E == 2) {
+//                 // group->intersect(Ray(hitPos, sampleDir), h, TMIN);
+//                 cout << "t = " << h.getT() << endl;
+//                 cout << "采样点： "; samplePoint.print();
+//                 sampleDir.print();
+//             }
+//             // if (group->intersect(Ray(hitPos, sampleDir), h, TMIN) &&    // 4. 检测是否被遮挡
+//             //     abs(h.getT() - sampleLine.length()) < TMIN) {  
+//             if (group->intersect(Ray(hitPos, sampleDir), h, TMIN)) {
+//                 if( E == 2) {
+//                     cout << "intersect " << endl;
+//                 }
+//                 double cos1 = Vector3f::dot(sampleDir, nl);              // 5. 计算光线与着色点法向量余弦
+//                 // cos1 = cos1 > 0 ? cos1 : 0;                         // TODO: 这里是否需要取绝对值？
+//                 double cos2 = Vector3f::dot(sampleDir, hit.getNormal());  // 6. 计算光线与交点法向量余弦
+//                 // cos2 = cos2 > 0 ? cos2 : 0;
+//                 e += eObj->getMaterial()->getEmission() * f * area * cos1 * cos2 / sampleLine.squaredLength() * M_1_PI;  // 7. 计算光源的颜色
+//             }
+//         }        
+//         if (E == 2) {
+            
+//             return material->getEmission() * E + e + f * (ptColor(Ray(hitPos, d), sceneParser, depth, 2));
+//         } else {
+//             return material->getEmission() * E + e + f * (ptColor(Ray(hitPos, d), sceneParser, depth, 1));
+//         }
+//     }
+    
+//     // Ideal SPECULAR reflection(理想镜面反射)
+//     else if (material->getType().y() == 1) {
+//         Vector3f d = ray.getDirection() - n * 2 * Vector3f::dot(ray.getDirection(), n);
+//         if (E == 2) {
+//             cout << "反射 " << endl;
+//             return material->getEmission() + f * (ptColor(Ray(hitPos, d), sceneParser, depth, 2));
+//         } else {
+//             return material->getEmission() + f * (ptColor(Ray(hitPos, d), sceneParser, depth));
+//         }
+        
+//     }
+        
+//     // Ideal dielectric REFRACTION(理想介质折射)
+//     // 反射光线初始化，直接套用反射公式
+//     Vector3f d = ray.getDirection() - n * 2 * Vector3f::dot(ray.getDirection(), n);
+//     Ray reflRay(hitPos, d); 
+//     // into = true: 光线从外而内；into = false：光线从内而外    
+//     bool into = Vector3f::dot(n, nl) > 0;                
+//     // nc: 外部介质折射率（如空气）
+//     // nt: 内部介质的折射率（如玻璃）
+//     double nc = 1, nt = material->getRefractRate();
+//     // nnt: 根据光线进出方向计算相对折射率
+//     double nnt = into ? nc/nt : nt/nc;
+//     // ddn: 入射角余弦值
+//     double ddn = Vector3f::dot(ray.getDirection(), nl);
+//     double cos2t = 1 - nnt * nnt * (1 - ddn * ddn);
+    
+//     // Total internal reflection(全内反射检查)
+//     if (cos2t < 0) {
+//         if (E == 2) {
+//             cout << "全反射 " << endl;
+//             return material->getEmission() + f *(ptColor(reflRay, sceneParser, depth, 2));
+//         } else {
+//             return material->getEmission() + f *(ptColor(reflRay, sceneParser, depth));
+//         }
+        
+//     }
+        
+//     // 计算折射方向
+//     Vector3f tdir = (ray.getDirection() * nnt - n * ((into ? 1 : -1) * (ddn * nnt + sqrt(cos2t)))).normalized();
+
+//     // 计算菲涅尔反射和折射系数
+//     // R0: 菲涅耳反射系数，最终反射率
+//     // Re: 最终折射率；Tr: 最终反射率
+//     // c: 辅助变量，用于确定光线能量在反射和折射间的分配
+//     double a = nt - nc, b = nt + nc, R0 = a * a / (b*b), c = 1 - (into ? -ddn : Vector3f::dot(tdir, n));
+//     double Re = R0 + (1 - R0) *c*c*c*c*c;
+//     double Tr = 1 - Re;
+//     // P: 用于决定追踪反射光线还是折射光线
+//     // RP: 追踪反射光线的权重；TP: 追踪折射光线的权重
+//     double P = .25 + .5*Re, RP = Re/P, TP = Tr / (1-P);
+
+//     if (E == 2) {
+//         cout << "Tr " << endl;
+//         return material->getEmission() + f * (depth > 2 ? (RAND2 < P ?
+//             ptColor(reflRay, sceneParser, depth, 2) * RP : ptColor(Ray(hitPos, tdir), sceneParser, depth, 2) * TP) :
+//             ptColor(reflRay, sceneParser, depth, 2) * Re + ptColor(Ray(hitPos, tdir), sceneParser, depth, 2) * Tr);
+//     } else {
+//         return material->getEmission() + f * (depth > 2 ? (RAND2 < P ?
+//             ptColor(reflRay, sceneParser, depth) * RP : ptColor(Ray(hitPos, tdir), sceneParser, depth) * TP) :
+//             ptColor(reflRay, sceneParser, depth) * Re + ptColor(Ray(hitPos, tdir), sceneParser, depth) * Tr);
+//     }
+// }
+
 // Ray Casting
 // Ref: ver.2020
 static Vector3f rcColor(Ray ray, const SceneParser& sceneParser, int depth = 0, int E = 1) {
@@ -425,23 +596,26 @@ class PathTracer {
             const int superSample = 2;
             const float invss2 = 1.0f / (superSample * superSample);
             for (int yy = 0; yy < h * superSample; ++yy) {
-                cout << yy << endl;
+                // cout << yy << endl;
                 for (int xx = 0; xx < w * superSample; ++xx) {
                     // cout << "(" << xx << ", " << yy << ")" << endl;
+                    // if (yy == 12) cout << "xx = " << xx << endl;
                     // 计算实际输出图像的像素位置
                     int x = xx / superSample;
                     int y = yy / superSample;
                     Vector3f color = Vector3f::ZERO;
                     for (int s = 0; s < samplesPerPixel; ++s) { 
-                        // cout << "s" << s << " ";
+                        // if(yy == 12 && xx == 737) cout << "s" << s << " ";
                         // 使用抖动（jittering）在子像素区域内采样
                         float subpixelX = (xx % superSample + RAND2) / superSample;
                         float subpixelY = (yy % superSample + RAND2) / superSample;
                         Ray camRay = camera->generateRay(Vector2f(x + subpixelX, y + subpixelY));
-                        // if (xx == 16 && yy == 153) {
-                        //     color += radiance(camRay, sceneParser, 0, 2);
-                        // }
-                        color += clampVec(radiance(camRay, sceneParser, 0, 1));
+                        if (xx == 737 && yy == 12) {
+                            color += clampVec(radiance(camRay, sceneParser, 0, 2));
+                        } else {
+                            color += clampVec(radiance(camRay, sceneParser, 0, 1));
+                        }
+                        // color += clampVec(radiance(camRay, sceneParser, 0, 1));
                     }
                     // 对超级采样区域内的颜色求平均
                     // color = clampVec(color / samplesPerPixel) * invss2;

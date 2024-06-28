@@ -70,6 +70,32 @@ public:
         }
     }
 
+    // //Ref: ver.2020
+    // bool intersect(const Ray &r, Hit &h, double tmin) override {
+    //     Vector3f o(r.getOrigin()), dir(r.getDirection());
+    //     Vector3f OC(ballCenter - o);
+    //     float b = -Vector3f::dot(OC, dir);
+    //     float c = OC.squaredLength() - radius * radius;
+    //     float delta = b * b - c;
+    //     if (delta <= 0) return false;
+    //     float sqrt_delta = sqrt(delta);
+    //     float t1 = (-b - sqrt_delta), t2 = (-b + sqrt_delta);
+    //     float t;
+    //     if (t1 <= h.getT() && t1 >= 0)
+    //         t = t1;
+    //     else if (t2 <= h.getT() && t2 >= 0)
+    //         t = t2;
+    //     else
+    //         return false;
+    //     Vector3f OP(o + dir * t - ballCenter);
+    //     Vector3f normal = OP.normalized();
+    //     float u = 0.5 + atan2(normal.x(), normal.z()) / (2 * M_PI),
+    //           v = 0.5 - asin(normal.y()) / M_PI;
+    //     h.set(t, material, getNormal(normal, OP, u, v),
+    //           material->getColor(u, v), o + dir * t);
+    //     return true;
+    // }
+
     const Vector3f& getCenter() const {
         return ballCenter;
     } 

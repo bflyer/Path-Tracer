@@ -27,14 +27,19 @@ Texture::Texture(const char *textureFile) {
 }
 
 Vector3f Texture::getColor(int idx) const {
+    // std::cout << pic[idx] << " " << pic[idx + 1] << " " << pic[idx + 2] << std::endl;
     return Vector3f(pic[idx], pic[idx + 1], pic[idx + 2]) / 255.;
 }
 
 Vector3f Texture::getColor(int u, int v) const {
+    // 若图片为空，直接返回 0
     if (!pic) return Vector3f::ZERO;
     u = u > w - 1 ? w - 1 : u;
     v = v > h - 1 ? h - 1 : v;
     int idx = (v * w  + u) * channel;
+    // std::cout << "int: " << pic[idx] << " " << pic[idx + 1] << " " << pic[idx + 2] << std::endl;
+    // Vector3f temp= Vector3f(pic[idx], pic[idx + 1], pic[idx + 2]) / 255.;
+    // temp.print();
     return Vector3f(pic[idx], pic[idx + 1], pic[idx + 2]) / 255.;
 }
 
@@ -60,6 +65,8 @@ Vector3f Texture::getColor(float u, float v) const {
     ret += alpha * (1 - beta) * getColor(iu + 1, iv);
     ret += (1 - alpha) * beta * getColor(iu, iv + 1);
     ret += alpha * beta * getColor(iu + 1, iv + 1);
+    // if (ret.x() > 1 || ret.y() > 1 || ret.z() > 1 || ret.x() < 0 || ret.y() < 0 || ret.z() < 0)
+        // std::cout << "float: " << ret.x() << " " << ret.y() << " " << ret.z() << std::endl;
     return ret;
     // TODO：为直接索引设计分支，加速
     // int idx = getIdx(u, v);
