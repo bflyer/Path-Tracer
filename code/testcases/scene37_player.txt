@@ -96,12 +96,11 @@ Group {
     }
     MaterialIndex 1
     Transform {
-		Scale  0.15 0.15 0.15
-		Translate  450 -80 800
-        XRotate  270	
-        ZRotate  60	
+		Scale  1 1 1
+		Translate  80 0 110
+        YRotate 270
         TriangleMesh {
-            obj_file mesh/player2.obj
+            obj_file mesh/basketball_hoop.obj
         }
     }
 }

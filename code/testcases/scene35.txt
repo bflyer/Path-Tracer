@@ -70,7 +70,7 @@ Group {
     MaterialIndex 1
     Plane {
 	    normal 0 0 -1
-        offset -11
+        offset -1
     }
     MaterialIndex 2
     Plane {
@@ -84,12 +84,12 @@ Group {
     MaterialIndex 5
         Plane {
 	    normal -1 0 0
-        offset -5
+        offset 1
     }
     MaterialIndex 6
     Plane {
 	    normal 1 0 0
-        offset -5
+        offset 1
     }
     MaterialIndex 7
     Plane {

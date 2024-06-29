@@ -167,14 +167,14 @@ static Vector3f ptColor(Ray ray, const SceneParser& sceneParser, int depth = 0, 
                 double cos2 = Vector3f::dot(sampleDir, hit.getNormal());  // 6. 计算光线与交点法向量余弦
                 if (material->getGlossy()) {
                     // f = BRDF_GGX(nl, ray.getDirection(), sampleDir, hit.getColor(), material->getMetallic(), material->getRoughness());
-                    f = material->eval(ray.getDirection(), sampleDir, nl);
+                    f = material->eval(ray.getDirection(), sampleDir, nl) * 1 / p;
                 }
                 e += eObj->getMaterial()->getEmission() * f * area * cos1 * cos2 / sampleLine.squaredLength() * M_1_PI;  // 7. 计算光源的颜色（乘 1/pi 是调和 pdf(omega)）
             }
         }        
         if (material->getGlossy()) {
             // f = BRDF_GGX(nl, ray.getDirection(), d, hit.getColor(), material->getMetallic(), material->getRoughness());
-            f = material->eval(ray.getDirection(), d, nl);
+            f = material->eval(ray.getDirection(), d, nl) * 1 / p;
         }
         return material->getEmission() * E + e + f * (ptColor(Ray(hitPos, d), sceneParser, depth, 0));
     }

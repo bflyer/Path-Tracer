@@ -1,0 +1,199 @@
+PerspectiveCamera {
+    center 50 52 295.6
+    direction 0 -0.042612 -1
+    up 0 1 0
+    angle 30
+    width 650
+    height 650
+}
+
+Lights {
+    numLights 2
+    DirectionalLight {
+        direction -0.5 -0.3 -1
+        color 0.9 0.9 0.9 
+    }
+    DirectionalLight {
+        direction 0.5 0.3 1
+        color 0.9 0.9 0.9 
+    }
+}
+
+Background {
+    color 0 0 0 
+}
+
+Materials {
+    numMaterials 17
+    Material { 
+        diffuseColor 0.9607843137254902 0.6235294117647059 0.8705882352941177
+        type 1 0 0
+    }
+    Material { 
+        diffuseColor 0.25 0.25 0.75 
+        type 1 0 0
+    }
+    Material { 
+        diffuseColor 0.75 0.75 0.75
+        type 1 0 0
+    }
+    Material { 
+        diffuseColor 0.0 0.0 0.0
+        type 1 0 0
+    }
+    Material {
+        diffuseColor 0.999 0.999 0.999
+        type 0 1 0
+    }
+    Material {
+        diffuseColor 0.999 0.999 0.999
+        type 0 0 1
+        refractRate 1.5
+    }
+    Material {
+        diffuseColor 0 0 0
+        specularColor 1 1 1
+        type 1 0 0
+        emission 12 12 12
+    }
+    Material {
+        diffuseColor 0.75 0 0
+        type 0 0 1
+        refractRate 1.5
+    }
+    Material {
+        diffuseColor 0 0.75 0
+        type 0 0 1
+        refractRate 1.5
+    }
+    Material {
+        diffuseColor 0 0 0.75
+        type 0 0 1
+        refractRate 1.5
+    }
+    Material {
+        diffuseColor 0.5647058823529412 0.27450980392156865 0.5176470588235295
+        type 0 0 1
+        refractRate 1.5
+    }
+    Material {
+        diffuseColor 0.9764705882352941 0.2823529411764706 0.9686274509803922
+        type 0 0 1
+        refractRate 1.5
+    }
+    Material {
+        diffuseColor 0.8901960784313725 0.5058823529411764 0.0196078431372549
+        type 0 0 1
+        refractRate 1.5
+    }
+    Material {
+        diffuseColor 0.9607843137254902 0.6235294117647059 0.8705882352941177
+        type 0 0 1
+        refractRate 1.5
+    }
+    Material {
+        diffuseColor 0.9176470588235294 0.9411764705882353 0.26666666666666666
+        type 0 0 1
+        refractRate 1.5
+    }
+    Material {
+        diffuseColor 0.0 0.9607843137254902 1.0
+        type 0 0 1
+        refractRate 1.5
+    }
+    Material { 
+        diffuseColor 1 1 1
+        type  0 0 1
+        refractRate 1.5
+        texture texture/my_texture/starry_sky.png
+    }
+}
+
+Group {
+    numObjects 16
+    MaterialIndex 0
+    Plane {
+        normal 1 0 0
+        offset 1
+    }
+    MaterialIndex 1
+    Plane {
+        normal -1 0 0
+        offset -99
+    }
+    MaterialIndex 2
+    Plane {
+        normal 0 0 1
+        offset 0
+    }
+    MaterialIndex 3
+    Plane {
+        normal 0 0 -1
+        offset -300
+    }
+    MaterialIndex 2
+    Plane {
+        normal 0 1 0
+        offset 0
+    }
+    MaterialIndex 2
+    Plane {
+        normal 0 -1 0
+        offset -81.6
+    }
+    MaterialIndex 7
+    Sphere {
+        center 10 70 47
+        radius 5 
+    }
+    MaterialIndex 8
+    Sphere {
+      center 50 55 78
+      radius 5
+    }
+    MaterialIndex 9
+    Sphere {
+      center 75 60 120
+      radius 5
+    }
+    MaterialIndex 14
+    Sphere {
+      center 40 70 90
+      radius 5
+    }
+    MaterialIndex 10
+    Sphere {
+      center 85 70 100
+      radius 5
+    }
+    MaterialIndex 15
+    Sphere {
+      center 70 70 67
+      radius 5
+    }
+    MaterialIndex 12
+    Sphere {
+      center 25 60 45
+      radius 5
+    }
+    MaterialIndex 16
+    Transform {
+		Scale  100 100 100 
+		Translate  50 30 250
+        YRotate  300	
+        TriangleMesh {
+            obj_file mesh/spot.obj
+        }
+    }
+    Transform {
+		Scale 0.8 0.8 0.8
+		Translate  90 -10 100
+        TriangleMesh {
+            obj_file mesh/bunny_fine_big.obj
+        }
+    }
+    MaterialIndex 6
+    TriangleMesh {
+        obj_file mesh/star.obj
+    }
+}

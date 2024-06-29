@@ -58,6 +58,7 @@ protected:
     int height;
 };
 
+// Ref: ver.2020 (参考了景深部分)
 // You can add new functions or variables whenever needed.
 class PerspectiveCamera : public Camera {
 public:
@@ -82,13 +83,8 @@ public:
         cy = height / 2.0f;
     }
 
-    // TODO：这里换了相机，要小心
-    // Ray generateRay(const Vector2f &point) override {
-    //     Vector3f d_rc = Vector3f((point[0] - cx) / fx, (cy - point[1]) / fy, 1);
-    //     c2w = Matrix3f(horizontal, -up, direction, 1);  // 相机坐标系到世界坐标系的变换矩阵
-    //     return Ray(center, c2w * d_rc);
-    // }
     Ray generateRay(const Vector2f &point) override {
+        // 加景深效果的射线生成算法
         float csx = focalLength * (point.x() - cx) / fx;   // 乘上焦距
         float csy = focalLength * (point.y() - cy) / fy;
         float dx = RAND * aperture, dy = RAND * aperture;  // 在光圈范围内随机抖动，模仿光圈效果

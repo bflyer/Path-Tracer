@@ -24,7 +24,7 @@ Background {
 }
 
 Materials {
-    numMaterials 17
+    numMaterials 21
     Material { 
         diffuseColor 0.9607843137254902 0.6235294117647059 0.8705882352941177
         type 1 0 0
@@ -39,6 +39,7 @@ Materials {
     }
     Material { 
         diffuseColor 0.0 0.0 0.0
+        emission 3 3 3
         type 1 0 0
     }
     Material {
@@ -105,13 +106,36 @@ Materials {
         diffuseColor 1 1 1
         type  0 0 1
         refractRate 1.5
+        texture texture/my_texture/fire.png
+    }
+    Material { 
+        diffuseColor 1 1 1
+        type  0 0 1
+        refractRate 1.5
+        texture texture/my_texture/night.jpg
+    }
+    Material { 
+        diffuseColor 1 1 1
+        type  1 0 0
+        texture texture/my_texture/moon.jpg
+    }
+    Material { 
+        diffuseColor 1 1 1
+        type  1 0 0
+        emission 0.1 0.1 0.1
+        texture texture/my_texture/star.jpg
+    }
+    Material { 
+        diffuseColor 1 1 1
+        type  0 0 1
+        refractRate 1.5
         texture texture/my_texture/starry_sky.png
     }
 }
 
 Group {
-    numObjects 15
-    MaterialIndex 0
+    numObjects 16
+    MaterialIndex 1
     Plane {
         normal 1 0 0
         offset 1
@@ -121,7 +145,7 @@ Group {
         normal -1 0 0
         offset -99
     }
-    MaterialIndex 2
+    MaterialIndex 18
     Plane {
         normal 0 0 1
         offset 0
@@ -131,12 +155,12 @@ Group {
         normal 0 0 -1
         offset -300
     }
-    MaterialIndex 2
+    MaterialIndex 0
     Plane {
         normal 0 1 0
         offset 0
     }
-    MaterialIndex 2
+    MaterialIndex 17
     Plane {
         normal 0 -1 0
         offset -81.6
@@ -178,11 +202,19 @@ Group {
     }
     MaterialIndex 16
     Transform {
-		Scale  0.6 0.6 0.6 
-		Translate  50 0 250
-        YRotate  135	
+		Scale  0.4 0.4 0.4
+		Translate  160 0 170
+        YRotate  220	
         TriangleMesh {
             obj_file mesh/spot_big.obj
+        }
+    }
+    MaterialIndex 20
+    Transform {
+		Scale 0.8 0.8 0.8
+		Translate  90 -10 115
+        TriangleMesh {
+            obj_file mesh/bunny_fine_big.obj
         }
     }
     MaterialIndex 6
