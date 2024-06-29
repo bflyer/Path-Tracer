@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-SAMPLES=1
+SAMPLES=200
 SAMPLES1000=1000
 SAMPLES500=500
 SAMPLES200=200
@@ -40,5 +40,5 @@ mkdir -p output
 # build/PA1 testcases/scene31_norm.txt output/scene31_norm_2.bmp $METHOD $SAMPLES 
 # build/PA1 testcases/scene32_norm.txt output/scene32_norm.bmp $METHOD $SAMPLES 
 # build/PA1 testcases/scene33_vase.txt output/scene33_vase.bmp $METHOD $SAMPLES 
-build/PA1 testcases/scene33_kitten.txt output/scene33_kitten.bmp $METHOD $SAMPLES200 
-build/PA1 testcases/scene24_dof.txt output/scene24_dof.bmp $METHOD $SAMPLES500
+build/PA1 testcases/scene33_kitten.txt output/scene33_kitten.bmp $METHOD $SAMPLES
+# build/PA1 testcases/scene24_dof.txt output/scene24_dof.bmp $METHOD $SAMPLES500

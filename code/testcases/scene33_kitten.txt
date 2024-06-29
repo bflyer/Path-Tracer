@@ -24,7 +24,7 @@ Background {
 }
 
 Materials {
-    numMaterials 22
+    numMaterials 23
     Material { 
         diffuseColor 0.9607843137254902 0.6235294117647059 0.8705882352941177
         type 1 0 0
@@ -39,6 +39,7 @@ Materials {
     }
     Material { 
         diffuseColor 0 0 0
+        emission 1 1 1
         type 1 0 0
     }
     Material {
@@ -131,6 +132,11 @@ Materials {
         diffuseColor 1 1 0
         type 1 0 0
     }
+    Material { 
+        diffuseColor 1 1 1
+        type 1 0 0
+        texture texture/my_texture/fire.png
+    }
 }
 
 Group {
@@ -204,7 +210,7 @@ Group {
     TriangleMesh {
         obj_file mesh/star4.obj
     }
-    MaterialIndex 21
+    MaterialIndex 0
     TriangleMesh {
         obj_file mesh/kitten_50k_big.obj
     }
