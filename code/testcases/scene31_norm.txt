@@ -16,11 +16,11 @@ Lights {
 }
 
 Background {
-    color 0.3 0.2 0.3
+    color 0.1 1 0.1
 }
 
 Materials {
-    numMaterials 6
+    numMaterials 8
     Material { 
         diffuseColor 0.75 0.25 0.25
         type 1 0 0
@@ -46,14 +46,29 @@ Materials {
         diffuseColor 0 0 0
         specularColor 1 1 1
         type 1 0 0
-        emission 12 12 12
+        emission 100 100 100
+    }
+    Material { 
+        diffuseColor 1 1 1
+        type 1 0 0
+        texture texture/my_texture/sky.png
+    }
+    Material {
+        diffuseColor 0 0 0
+        emission 24 24 24
+        type 1 0 0
     }
 }
 
 Group {
-    numObjects 2
+    numObjects 3
+    MaterialIndex 2
+    Plane {
+        normal 0 0 1
+        offset 0
+    }
     
-    MaterialIndex 4
+    MaterialIndex 6
     RevSurface {
         profile BezierCurve {
             controls
@@ -66,5 +81,9 @@ Group {
     MaterialIndex 5
     TriangleMesh {
         obj_file mesh/squareLight_2.obj
+    }
+    MaterialIndex 7
+    TriangleMesh {
+        obj_file mesh/squareLight.obj
     }
 }

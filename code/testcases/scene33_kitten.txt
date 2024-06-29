@@ -24,7 +24,7 @@ Background {
 }
 
 Materials {
-    numMaterials 21
+    numMaterials 22
     Material { 
         diffuseColor 0.9607843137254902 0.6235294117647059 0.8705882352941177
         type 1 0 0
@@ -125,13 +125,16 @@ Materials {
     Material { 
         diffuseColor 1 1 1
         type 1 0 0
-        texture texture/my_texture/pink.jpg
-        bump texture/my_texture/pink.jpg
+        emission 1 1 1
+    }
+    Material { 
+        diffuseColor 1 1 0
+        type 1 0 0
     }
 }
 
 Group {
-    numObjects 18
+    numObjects 15
     MaterialIndex 18
     Plane {
         normal 1 0 0
@@ -146,7 +149,7 @@ Group {
         normal 0 0 1
         offset 0
     }
-    MaterialIndex 18
+    MaterialIndex 3
     Plane {
         normal 0 0 -1
         offset -300
@@ -199,21 +202,9 @@ Group {
 
     MaterialIndex 6
     TriangleMesh {
-        obj_file mesh/star1.obj
-    }
-    MaterialIndex 6
-    TriangleMesh {
-        obj_file mesh/star2.obj
-    }
-    MaterialIndex 6
-    TriangleMesh {
-        obj_file mesh/star3.obj
-    }
-    MaterialIndex 6
-    TriangleMesh {
         obj_file mesh/star4.obj
     }
-    MaterialIndex 0
+    MaterialIndex 21
     TriangleMesh {
         obj_file mesh/kitten_50k_big.obj
     }

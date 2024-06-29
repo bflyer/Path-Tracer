@@ -40,5 +40,7 @@ mkdir -p output
 # build/PA1 testcases/scene31_norm.txt output/scene31_norm_2.bmp $METHOD $SAMPLES 
 # build/PA1 testcases/scene32_norm.txt output/scene32_norm.bmp $METHOD $SAMPLES 
 # build/PA1 testcases/scene33_vase.txt output/scene33_vase.bmp $METHOD $SAMPLES 
-build/PA1 testcases/scene33_kitten.txt output/scene33_kitten.bmp $METHOD $SAMPLES200 
-build/PA1 testcases/scene24_dof.txt output/scene24_dof.bmp $METHOD $SAMPLES500
+# build/PA1 testcases/scene33_kitten.txt output/scene33_kitten.bmp $METHOD $SAMPLES200 
+# build/PA1 testcases/scene24_dof.txt output/scene24_dof.bmp $METHOD $SAMPLES500
+# build/PA1 testcases/scene34_move.txt output/scene34_move.bmp $METHOD $SAMPLES
+build/PA1 testcases/scene35.txt output/scene35.bmp $METHOD $SAMPLES 
