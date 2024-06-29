@@ -18,7 +18,7 @@
 #include "ray.hpp"
 #include "utils.hpp"
 
-// Ref: ver.2020
+// Ref: ver.2020 (参考了纹理处理以及 KD-tree 加速求交，有一部分是我 .obj 文件是我自己改了的)
 class Mesh : public Object3D {
 
 public:
@@ -165,7 +165,7 @@ public:
     }
 
     // // 顺序遍历求交
-    // bool intersect (const Ray &ray, Hit &hit, double tmin) override {
+    // bool intersect (const Ray &ray, Hit &hit, float tmin) override {
     //     bool flag = false;
     //     for (auto triangle : triangles) flag |= triangle->intersect(ray, hit, TMIN);
     //     return flag;

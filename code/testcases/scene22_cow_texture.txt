@@ -39,7 +39,7 @@ Materials {
     }
     Material { 
         diffuseColor 0.0 0.0 0.0
-        emission 3 3 3
+        emission 10 10 10
         type 1 0 0
     }
     Material {
@@ -209,7 +209,7 @@ Group {
             obj_file mesh/spot_big.obj
         }
     }
-    MaterialIndex 20
+    MaterialIndex 15
     Transform {
 		Scale 0.8 0.8 0.8
 		Translate  90 -10 115

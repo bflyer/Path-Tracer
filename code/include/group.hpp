@@ -1,7 +1,6 @@
 #ifndef GROUP_H
 #define GROUP_H
 
-
 #include "object3d.hpp"
 #include "sphere.hpp"
 #include "ray.hpp"
