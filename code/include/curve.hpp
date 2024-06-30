@@ -164,10 +164,11 @@ public:
         int tSize = t.size();
         tpad.resize(tSize + k);
         for (int i = 0; i < tSize + k; i++) 
-            tpad[i] = i<tSize ? t[i] : t.back();
+            tpad[i] = i < tSize ? t[i] : t.back();
         range[0] = t[k];
         range[1] = t[n];
     }
+
 
     void discretize(int resolution, std::vector<CurvePoint>& data) override
     {

@@ -24,18 +24,19 @@ Background {
 }
 
 Materials {
-    numMaterials 7
+    numMaterials 9
     Material { 
-        diffuseColor 0.75 0.25 0.25
+        diffuseColor 0.7 0.7 0.7
         type 1 0 0
     }
     Material { 
-        diffuseColor 0.25 0.25 0.75 
+        diffuseColor 0.96 0.9 0.235 
         type 1 0 0
     }
     Material { 
-        diffuseColor 0.75 0.75 0.75
+        diffuseColor 1 1 1
         type 1 0 0
+        texture texture/my_texture/spider.jpg
     }
     Material { 
         diffuseColor 0.0 0.0 0.0
@@ -46,20 +47,30 @@ Materials {
         type 0 1 0
     }
     Material { 
-        diffuseColor 0.9 0.8 0.8
-        type  1 0 0
-        bump texture/paper.png
+        diffuseColor 1 1 1
+        type  0 0 1
+        refractRate 1.5
+        texture texture/my_texture/fire.png
     }
     Material {
         diffuseColor 0 0 0
         specularColor 1 1 1
         type 1 0 0
-        emission 12 12 12
+        emission 24 24 24
+    }
+    Material { 
+        diffuseColor 1 1 1 
+        type  1 0 0
+        texture texture/my_texture/monster.jpg
+    }
+    Material { 
+        diffuseColor 0 0.749 1
+        type  1 0 0
     }
 }
 
 Group {
-    numObjects 9
+    numObjects 8
     MaterialIndex 0
     Plane {
         normal 1 0 0
@@ -70,7 +81,7 @@ Group {
         normal -1 0 0
         offset -99
     }
-    MaterialIndex 2
+    MaterialIndex 7
     Plane {
         normal 0 0 1
         offset 0
@@ -85,25 +96,28 @@ Group {
         normal 0 1 0
         offset 0
     }
-    MaterialIndex 2
+    MaterialIndex 8
     Plane {
         normal 0 -1 0
         offset -81.6
-    }
-    MaterialIndex 4
-    Sphere {
-        center 27 16.5 47
-        radius 16.5 
-    }
-
-    MaterialIndex 5
-    Sphere {
-      center 73 16.5 78
-      radius 16.5
     }
 
     MaterialIndex 6
     TriangleMesh {
         obj_file mesh/squareLight.obj
+    }
+    MaterialIndex 5
+    Transform {
+        Translate 50 20 90
+        Scale 10 10 10
+        RevSurface {
+            profile BezierCurve {
+                controls
+                    [ -1.2 3 0 ]
+                    [ 0 0 0 ]
+                    [ -4 0 0 ]
+                    [ -1.3 -2 0 ]
+            }
+        }
     }
 }

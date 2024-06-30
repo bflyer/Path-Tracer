@@ -8,6 +8,7 @@
 // Ref: ver.2020
 class Material;
 
+// TODO: 删除 attenuation
 class Hit {
 public:
     // constructors

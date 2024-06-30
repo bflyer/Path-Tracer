@@ -16,9 +16,8 @@ class ObjectKDTreeNode {
 public:
     Vector3f min, max;            // 坐标最小值和最大值
     vector<Object3D*>* faces;     // 子空间物体列表
-    ObjectKDTreeNode *ls, *rs;    // 左右孩子
-    // TODO: l, r 不知道什么用，待删
-    int l, r;                     
+    ObjectKDTreeNode *l, *r;    // 左右孩子
+                 
     bool inside(Object3D* face) {
         Vector3f faceMin = face->min();
         Vector3f faceMax = face->max();
@@ -49,63 +48,54 @@ class ObjectKDTree {
         ObjectKDTreeNode* p = new ObjectKDTreeNode;
         p->min = min;
         p->max = max;
-        Vector3f maxL, minR;  // 左子树最小坐标与右子树最大坐标
+        Vector3f maxL, minR;  // 左子树最大坐标与右子树最小坐标
         if (axis == 0) {
-            maxL =
-                Vector3f((p->min.x() + p->max.x()) / 2, p->max.y(), p->max.z());
-            minR =
-                Vector3f((p->min.x() + p->max.x()) / 2, p->min.y(), p->min.z());
+            maxL = Vector3f((p->min.x() + p->max.x()) / 2, p->max.y(), p->max.z());
+            minR = Vector3f((p->min.x() + p->max.x()) / 2, p->min.y(), p->min.z());
         } else if (axis == 1) {
-            maxL =
-                Vector3f(p->max.x(), (p->min.y() + p->max.y()) / 2, p->max.z());
-            minR =
-                Vector3f(p->min.x(), (p->min.y() + p->max.y()) / 2, p->min.z());
+            maxL = Vector3f(p->max.x(), (p->min.y() + p->max.y()) / 2, p->max.z());
+            minR = Vector3f(p->min.x(), (p->min.y() + p->max.y()) / 2, p->min.z());
         } else {
-            maxL =
-                Vector3f(p->max.x(), p->max.y(), (p->min.z() + p->max.z()) / 2);
-            minR =
-                Vector3f(p->min.x(), p->min.y(), (p->min.z() + p->max.z()) / 2);
+            maxL = Vector3f(p->max.x(), p->max.y(), (p->min.z() + p->max.z()) / 2);
+            minR = Vector3f(p->min.x(), p->min.y(), (p->min.z() + p->max.z()) / 2);
         }
         p->faces = new vector<Object3D*>;
+        // 将所有属于该空间的面片放入该空间的面片集合
         for (auto face : *faces)
             if (p->inside(face)) p->faces->push_back(face);
 
-        const int max_faces = 128;  // 叶节点最大容量
-        const int max_depth = 24;   // 最大树深
+        const int max_faces = 64;  // 叶节点最大容量
+        const int max_depth = 26;   // 最大树深
 
         // 递归建树
         if (p->faces->size() > max_faces && depth < max_depth) {
-            p->ls = build(depth + 1, (axis + 1) % 3, p->faces, min, maxL);
-            p->rs = build(depth + 1, (axis + 1) % 3, p->faces, minR, max);
+            // 按顺序选择下一个轴交给子树建树
+            p->l = build(depth + 1, (axis + 1) % 3, p->faces, min, maxL);
+            p->r = build(depth + 1, (axis + 1) % 3, p->faces, minR, max);
 
             // 横跨分界面的节点归给父亲    
-            vector<Object3D*>*faceL = p->ls->faces, *faceR = p->rs->faces;
+            vector<Object3D*>*faceL = p->l->faces, *faceR = p->r->faces;
+            // 记录每个面片在左右子树中出现的总次数
             map<Object3D*, int> cnt;
             for (auto face : *faceL) cnt[face]++;
             for (auto face : *faceR) cnt[face]++;
-            p->ls->faces = new vector<Object3D*>;
-            p->rs->faces = new vector<Object3D*>;
+            p->l->faces = new vector<Object3D*>;
+            p->r->faces = new vector<Object3D*>;
             p->faces->clear();
+
+            // 重新分配面片，使其在任何一个空间中只可能出现一次
             for (auto face : *faceL)
+                // 只出现一次的留在子空间
                 if (cnt[face] == 1)
-                    p->ls->faces->push_back(face);
+                    p->l->faces->push_back(face);
+                // 出现了两次的（即横跨分界面）交给父亲
                 else
                     p->faces->push_back(face);
             for (auto face : *faceR)
-                if (cnt[face] == 1) p->rs->faces->push_back(face);
+                if (cnt[face] == 1) p->r->faces->push_back(face);
         } else
-            p->ls = p->rs = nullptr;
+            p->l = p->r = nullptr;
         return p;
-    }
-
-    // 递归获取所有物体
-    void getFaces(ObjectKDTreeNode* p, vector<Object3D*>* faces) {
-        for (auto face : *(p->faces)) faces->push_back(face);
-        // TODO: l, r 不知道什么用，待删
-        p->l = faces->size();
-        p->r = faces->size();
-        if (p->ls) getFaces(p->ls, faces);
-        if (p->rs) getFaces(p->rs, faces);
     }
 
 public:
@@ -122,9 +112,7 @@ public:
         // 建树（初始深度为 1，轴为 x 轴）
         root = build(1, 0, faces, min, max);
         std::cout << "建树完成" << std::endl;
-        // TODO：为什么这里 this->faces 不直接等于 faces 呢？
-        this->faces = new vector<Object3D*>;
-        getFaces(root, this->faces);    
+        this->faces = faces;
     }
 
     // 计算光线与给定子空间的交点距离（注意：这是和包围盒相交，不见得和包围盒内物体相交）
@@ -145,24 +133,27 @@ public:
     bool intersect2(ObjectKDTreeNode* p, const Ray& ray, Object3D*& nextFace,
                    Hit& hit) const {
         bool flag = false;  // 表示有无交点
+        // 1. 先在本空间内进行求交检测
         for (int i = 0; i < p->faces->size(); ++i)
             if ((*p->faces)[i]->intersect(ray, hit, TMIN)) {
                 nextFace = (*p->faces)[i];
                 flag = true;
             }
-        float tl = cuboidIntersect(p->ls, ray),
-              tr = cuboidIntersect(p->rs, ray);
-        // 根据和包围盒交点深浅决定先递归检查哪个
+        // 2. 再递归地在左右子空间中进行求交检测
+        float tl = cuboidIntersect(p->l, ray),
+              tr = cuboidIntersect(p->r, ray);
+        // 根据射线和包围盒交点的深浅决定先递归检查哪个
         if (tl < tr) {
+            // 3. 若当前最近交点比射线与包围盒的交点还近，直接返回
             if (hit.getT() <= tl) return flag;
-            if (p->ls) flag |= intersect2(p->ls, ray, nextFace, hit);
+            if (p->l) flag |= intersect2(p->l, ray, nextFace, hit);
             if (hit.getT() <= tr) return flag;
-            if (p->rs) flag |= intersect2(p->rs, ray, nextFace, hit);
+            if (p->r) flag |= intersect2(p->r, ray, nextFace, hit);
         } else {
             if (hit.getT() <= tr) return flag;
-            if (p->rs) flag |= intersect2(p->rs, ray, nextFace, hit);
+            if (p->r) flag |= intersect2(p->r, ray, nextFace, hit);
             if (hit.getT() <= tl) return flag;
-            if (p->ls) flag |= intersect2(p->ls, ray, nextFace, hit);
+            if (p->l) flag |= intersect2(p->l, ray, nextFace, hit);
         }
         return flag;
     }

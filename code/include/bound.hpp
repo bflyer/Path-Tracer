@@ -24,12 +24,17 @@ public:
         bounds[1] = max;
     }
 
+    // // TODO：可改用 maxElements 和 minElements 代替
+    // void updateBound(const Vector3f &vec) {
+    //     for (int i = 0; i < 3; ++i) {
+    //         bounds[0][i] = bounds[0][i] < vec[i] ? bounds[0][i] : vec[i];
+    //         bounds[1][i] = bounds[1][i] < vec[i] ? vec[i] : bounds[1][i];
+    //     }
+    // }
     // TODO：可改用 maxElements 和 minElements 代替
     void updateBound(const Vector3f &vec) {
-        for (int i = 0; i < 3; ++i) {
-            bounds[0][i] = bounds[0][i] < vec[i] ? bounds[0][i] : vec[i];
-            bounds[1][i] = bounds[1][i] < vec[i] ? vec[i] : bounds[1][i];
-        }
+        bounds[0] = minE(bounds[0], vec);
+        bounds[1] = maxE(bounds[1], vec);
     }
     
     // 还没进来就已出去则无交点

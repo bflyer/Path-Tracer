@@ -141,7 +141,7 @@ Group {
     TriangleMesh {
         obj_file mesh/squareLight.obj
     }
-    MaterialIndex 7
+    MaterialIndex 1
     Transform {
 		Scale  0.15 0.15 0.15
 		Translate  300 -80 800

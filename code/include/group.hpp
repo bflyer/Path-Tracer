@@ -10,6 +10,7 @@
 #include <iostream>
 #include <vector>
 
+// Original 
 class Group : public Object3D {
 
 public:

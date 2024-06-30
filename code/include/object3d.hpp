@@ -6,6 +6,7 @@
 #include "material.hpp"
 #include <vector>
 
+// (基本框架，自己加了点东西)
 // Base class for all 3d entities.
 class Object3D {
 public:

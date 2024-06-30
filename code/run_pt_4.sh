@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-SAMPLES=100
+SAMPLES=1
 SAMPLES1000=1000
 SAMPLES500=500
 SAMPLES200=200
@@ -17,7 +17,7 @@ mkdir -p output
 # build/PA1 testcases/scene11_box.txt output/scene11_box.bmp $METHOD $
 # build/PA1 testcases/scene13_star.txt output/scene13_star.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene15_cube_and_ball.txt output/scene15_cube_and_ball.bmp $METHOD $SAMPLES
-build/PA1 testcases/scene14_star_yellow.txt output/scene14_star_yellow.bmp $METHOD $SAMPLES
+# build/PA1 testcases/scene14_star_yellow.txt output/scene14_star_yellow.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene12.txt output/scene12.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene09_sky.txt output/scene09.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene08_smallpt_allball.txt output/scene08_allball.bmp $METHOD $SAMPLES
@@ -29,12 +29,12 @@ build/PA1 testcases/scene14_star_yellow.txt output/scene14_star_yellow.bmp $METH
 # build/PA1 testcases/scene21_bunny_star.txt output/scene21_bunny_star.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene22_cow_texture.txt output/scene22_cow_texture.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene23_dof.txt output/scene23_dof.bmp $METHOD $SAMPLES
-build/PA1 testcases/scene24_dof.txt output/scene24_dof.bmp $METHOD $SAMPLES
+# build/PA1 testcases/scene24_dof.txt output/scene24_dof.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene24_dof_0.txt output/scene24_dof_0.bmp $METHOD $SAMPLES
-build/PA1 testcases/scene25_glossy.txt output/scene25_glossy.bmp $METHOD $SAMPLES
+# build/PA1 testcases/scene25_glossy.txt output/scene25_glossy.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene26_wineglass.txt output/scene26_wineglass.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene27_bump.txt output/scene27_bump.bmp $METHOD $SAMPLES
-build/PA1 testcases/scene28_bump.txt output/scene28_bump.bmp $METHOD $SAMPLES
+# build/PA1 testcases/scene28_bump.txt output/scene28_bump.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene29_floor_fire.txt output/scene29_great.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene09_norm.txt output/scene09_norm.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene31_norm.txt output/scene31_norm_2.bmp $METHOD $SAMPLES 
@@ -44,4 +44,4 @@ build/PA1 testcases/scene28_bump.txt output/scene28_bump.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene24_dof.txt output/scene24_dof.bmp $METHOD $SAMPLES500
 # build/PA1 testcases/scene34_move.txt output/scene34_move.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene35.txt output/scene35.bmp $METHOD $SAMPLES
-# build/PA1 testcases/scene37_player.txt output/scene37_player2.bmp $METHOD $SAMPLES
+build/PA1 testcases/scene41.txt output/scene41.bmp $METHOD $SAMPLES
