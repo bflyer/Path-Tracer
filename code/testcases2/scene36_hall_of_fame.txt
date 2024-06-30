@@ -24,7 +24,7 @@ Background {
 }
 
 Materials {
-    numMaterials 16
+    numMaterials 15
     Material { 
         diffuseColor 0 0 0
         emission 5 5 5
@@ -34,7 +34,7 @@ Materials {
         diffuseColor 0 0 0
         specularColor 1 1 1
         type 1 0 0
-        emission 12 12 12
+        emission 24 24 24
     }
     Material { 
         diffuseColor 1 1 1
@@ -44,7 +44,7 @@ Materials {
     Material { 
         diffuseColor 1 1 1
         type  1 0 0
-        texture texture/my_texture/water.jpg
+        texture texture/my_texture/right.jpg
     }
     Material { 
         diffuseColor 0.96 0.9 0.235 
@@ -99,30 +99,26 @@ Materials {
         type 0 0 1
         refractRate 1.5
     }
-    Material { 
-        diffuseColor 1 0.25 0.25
-        type  1 0 0
-    }
 }
 
 Group {
-    numObjects 16
-    MaterialIndex 4
+    numObjects 15
+    MaterialIndex 2
     Plane {
         normal 1 0 0
         offset 1
     }
-    MaterialIndex 4
+    MaterialIndex 3
     Plane {
         normal -1 0 0
-        offset -99
+        offset -0.95
     }
-    MaterialIndex 2
+    MaterialIndex 6
     Plane {
         normal 0 0 1
         offset 0
     }
-    MaterialIndex 3
+    MaterialIndex 0
     Plane {
         normal 0 0 -1
         offset -300
@@ -144,20 +140,11 @@ Group {
     MaterialIndex 7
     Transform {
 		Scale  0.15 0.15 0.15
-		Translate  300 -80 800
+		Translate  450 -80 800
         XRotate  270	
         ZRotate  60	
         TriangleMesh {
             obj_file mesh/player2.obj
-        }
-    }
-    MaterialIndex 3
-    Transform {
-		Scale  1 1 1
-		Translate  70 0 110
-        YRotate 270
-        TriangleMesh {
-            obj_file mesh/basketball_hoop.obj
         }
     }
     MaterialIndex 8

@@ -32,7 +32,6 @@ public:
 };
 
 // Ref: ver.2020
-// TODO：修改建树
 class ObjectKDTree {
     int n;
     Vector3f** vertices;  // 顶点数组

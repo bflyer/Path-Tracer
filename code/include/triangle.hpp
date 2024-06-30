@@ -78,29 +78,29 @@ public:
 	// 	}
 	// }
 
-	// 法三：叉乘判断法
+	// 法三：叉乘判断法（法一偏慢，法二法三方法是一样的，但为了命名上方便和纹理映射衔接，改成了法三）
 	// Ref: ver.2020
 	bool intersect(const Ray& ray, Hit& hit, float tmin) override {
         Vector3f o(ray.getOrigin()), dir(ray.getDirection());
-		// 根据叉乘判断是否在三角形内有交
-        Vector3f v0v1 = b - a;
-        Vector3f v0v2 = c - a;
-        Vector3f pvec = Vector3f::cross(dir, v0v2);
-        float det = Vector3f::dot(v0v1, pvec);
+		// 根据叉乘判断是否可能和平面相交
+        Vector3f ab = b - a;
+        Vector3f ac = c - a;
+        Vector3f pvec = Vector3f::cross(dir, ac);
+        float det = Vector3f::dot(ab, pvec);
         if (fabs(det) < tmin) return false;
 
-		// 坐标变换
+		// 判断交点是否在三角形内部
         float invDet = 1 / det;
         Vector3f tvec = o - a;
         float u = Vector3f::dot(tvec, pvec) * invDet;
         if (u < 0 || u > 1) return false;
-        Vector3f qvec = Vector3f::cross(tvec, v0v1);
+        Vector3f qvec = Vector3f::cross(tvec, ab);
         float v = Vector3f::dot(dir, qvec) * invDet;
         if (v < 0 || u + v > 1) return false;
-        double t = Vector3f::dot(v0v2, qvec) * invDet;
+        double t = Vector3f::dot(ac, qvec) * invDet;
         if (t <= tmin || t > hit.getT()) return false;
 
-		// 真正有交
+		// 设置交点
         Vector3f p(o + dir * t);
         getUV(p, u, v);
         hit.set(t, material, getNorm(p), material->getColor(u, v), p);
