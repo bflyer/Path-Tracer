@@ -77,6 +77,36 @@ public:
         }
     }
 
+    // bool intersect(const Ray &r, Hit &h, float tmin) override {
+    //      Vector3f o = move ? r.getOrigin() - velocity * RAND2 : r.getOrigin();
+    //     Vector3f dir = r.getDirection().normalized();
+    //     float b = Vector3f::dot(dir, r.getOrigin() - ballCenter);
+    //     float c = (r.getOrigin() - ballCenter).squaredLength() - radius * radius;
+    //     float delta = b * b - c;
+    //     if (delta < 0){
+    //         return false;
+    //     }
+    //     float t1 = -b - sqrt(delta), t2 = -b + sqrt(delta);
+    //     float t = 0.0;
+    //     if(t1 < tmin){
+    //         if(t2 < tmin)
+    //             return false;
+    //         else
+    //             t = t2;
+    //     }
+    //     else
+    //         t = t1;
+    //     if(t <= h.getT()){
+    //         Vector3f hit_pos = r.pointAtParameter(t);
+    //         Vector3f normal = (hit_pos - ballCenter).normalized();
+    //         float u = 0.5 + atan2(normal.x(), normal.z()) / (2 * M_PI);
+    //         float v = 0.5 - asin(normal.y()) / M_PI;
+    //         h.set(t, material, normal, material->getColor(u, v) , hit_pos);
+    //         return true;
+    //     }
+    //     return false;
+    // }
+
     const Vector3f& getCenter() const {
         return ballCenter;
     } 

@@ -12,7 +12,7 @@
 
 #define clampCos(x) ((x > 1) ? 1 : ((x < -1) ? -1 : x))
 
-// Ref: ver.2020
+// Ref: https://zhuanlan.zhihu.com/p/606074595(Glossy)
 class Material {
 public:
     explicit Material(const Vector3f &d_color, 
@@ -82,25 +82,22 @@ public:
     }
 
     /*
-        1. I is the incident view direction(入射光线的方向)
-        
-        2. N is the normal at the intersection point
-        
-        3. ior is the material refractive index
-        
-        4. kr is the amount of light reflected(计算后得到的反射光的比例)
+        1. I: 入射光线的方向
+        2. N: 交点处法向
+        3. ior: 折射系数
+        4. kr: 计算后得到的反射光的比例
     */
     float fresnel(const Vector3f &I, const Vector3f &N, float ior) {
             float kr = 0.0;
             float cosi = clampCos(Vector3f::dot(I, N));
             float etai = 1, etat = ior;
             if (cosi > 0) {  std::swap(etai, etat); }
-            // Compute sini using Snell's law
+            // 用 Snell's law 计算 sin
             float sint = etai / etat * sqrtf(std::max(0.f, 1 - cosi * cosi));
-            // Total internal reflection
-            if (sint >= 1) {
+            // 完全内反射
+            if (sint >= 1)
                 kr = 1;
-            }
+            // 正常折射
             else {
                 float cost = sqrtf(std::max(0.f, 1 - sint * sint));
                 cosi = fabsf(cosi);
@@ -109,9 +106,24 @@ public:
                 kr = (Rs * Rs + Rp * Rp) / 2;
             }
             return kr;
-            // As a consequence of the conservation of energy, transmittance is given by:
-            // kt = 1 - kr;
+            // 根据能量守恒，透射为 kt = 1 - kr;
     }
+
+    // 几何遮挡函数（Shadowing and Making term）
+    float G_function (const float& roughness, const Vector3f& wi, const Vector3f& wo, const Vector3f& N) {
+        float A_wi, A_wo;
+        A_wi = (-1 + sqrt(1 + roughness * roughness * pow(tan(acos(Vector3f::dot(wi, N))), 2))) / 2;
+        A_wo = (-1 + sqrt(1 + roughness * roughness * pow(tan(acos(Vector3f::dot(wo, N))), 2))) / 2;
+        float divisor = (1 + A_wi + A_wo);
+        return divisor < 0.001 ? 1.f : 1.0f / divisor;
+    };
+
+    // 法线分布函数（Normal Distribution Fuction，NDF），此处采用 GGX 模型
+    float D_function (const float& roughness, const Vector3f& h, const Vector3f& N) {
+        float cos_sita = Vector3f::dot(h, N);
+        float divisor = (M_PI * pow(1.0 + cos_sita * cos_sita * (roughness * roughness - 1), 2));
+        return divisor < 0.001 ? 1.f : (roughness * roughness) / divisor;
+    };
 
     /*
         Glossy 材质
@@ -122,38 +134,15 @@ public:
     Vector3f eval(const Vector3f &wi, const Vector3f &wo, const Vector3f &N){
         float cosalpha = Vector3f::dot(N, wo);
         if (cosalpha > 0.0f) {
-            // calculate the contribution of Microfacet model
+            // 分别计算 Fresnel 系数、几何遮挡函数、法线分布函数
             float F, G, D;
-
             F = fresnel(wi, N, ior);
-
-            auto G_function = [&](const float& roughness, const Vector3f& wi, const Vector3f& wo, const Vector3f& N)
-            {
-                float A_wi, A_wo;
-                A_wi = (-1 + sqrt(1 + roughness * roughness * pow(tan(acos(Vector3f::dot(wi, N))), 2))) / 2;
-                A_wo = (-1 + sqrt(1 + roughness * roughness * pow(tan(acos(Vector3f::dot(wo, N))), 2))) / 2;
-                float divisor = (1 + A_wi + A_wo);
-                if (divisor < 0.001)
-                    return 1.f;
-                else
-                    return 1.0f / divisor;
-            };
-            G = G_function(roughness, -wi, wo, N);
-
-            auto D_function = [&](const float& roughness, const Vector3f& h, const Vector3f& N)
-            {
-                float cos_sita = Vector3f::dot(h, N);
-                float divisor = (M_PI * pow(1.0 + cos_sita * cos_sita * (roughness * roughness - 1), 2));
-                if (divisor < 0.001)
-                    return 1.f;
-                else 
-                    return (roughness * roughness) / divisor;
-            };
+            G = G_function(roughness, -wi, wo, N);            
             Vector3f h = (-wi + wo).normalized();
             D = D_function(roughness, h, N);
 
             // energy balance
-            Vector3f diffuse = (Vector3f(1.0f) - F) * diffuseColor / M_PI;
+            Vector3f diffuse = (Vector3f(1.0f) - F) * diffuseColor;
             Vector3f specular;
             float divisor= ((4 * (Vector3f::dot(N, -wi)) * (Vector3f::dot(N, wo))));
             if (divisor < 0.001)
@@ -181,6 +170,5 @@ protected:
     float ior;                    // 反射率
     float clamp(float x) { return std::max(float(0), x); }   // 截断函数
 };
-
 
 #endif // MATERIAL_H

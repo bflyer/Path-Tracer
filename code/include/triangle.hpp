@@ -108,6 +108,7 @@ public:
     }
 
 	// Ref: ver.2020
+	// 用于 Mesh 类设置法向量
 	void setVNorm(const Vector3f& anorm, const Vector3f& bnorm,
                   const Vector3f& cnorm) {
         an = anorm;
@@ -116,6 +117,7 @@ public:
         nSet = true;
     }
 
+	// 用于 Mesh 类设置纹理
     void setVT(const Vector2f& _at, const Vector2f& _bt, const Vector2f& _ct) {
 		at = _at;
         bt = _bt;
@@ -123,10 +125,11 @@ public:
         tSet = true;
     }
 
-	double getArea() const override{
+	double getArea() const override{ 
 		return area;
 	}
 
+	// 随机选择权重，再用中心表示法得到采样点
 	Vector3f sample() const override {
 		double r1 = RAND2;
 		double r2 = (1 - r1) * RAND2;

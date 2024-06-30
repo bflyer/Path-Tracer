@@ -20,7 +20,6 @@ class Transform : public Object3D {
 public:
     Transform() {}
 
-    // TODO: 优化掉 Object3D(obj->getMaterial()
     Transform(const Matrix4f &m, Object3D *obj) : o(obj), area(1), Object3D(obj->getMaterial()) {
         transform = m.inverse();
         bounds[0] = transformPoint(m, o->min());

@@ -26,7 +26,7 @@ Background {
 }
 
 Materials {
-    numMaterials 9
+    numMaterials 10
     Material { 
         diffuseColor 0.75 0.25 0.25
         type 1 0 0
@@ -41,22 +41,24 @@ Materials {
     }
     Material { 
         diffuseColor 0 0 0
+        emission 3 3 3
         type 1 0 0
-    }
-    Material {
-        diffuseColor 1 1 1
-        type 1 0 0
-        texture texture/world_nocloud.jpg
     }
     Material {
         diffuseColor 1 1 1
         type 0 0 1
         refractRate 1.5
-        texture texture/world_nocloud.jpg
+        texture texture/my_texture/star3.jpg
+    }
+    Material {
+        diffuseColor 1 1 1
+        type 0 0 1
+        refractRate 1.5
+        texture texture/my_texture/starry.jpg
     }
     Material {
         diffuseColor 0 0 0
-        emission 15 15 15
+        emission 30 30 30
         type 1 0 0
     }
     Material {
@@ -70,11 +72,16 @@ Materials {
         type 1 0 0
         emission 15 15 15
     }
+    Material {
+        diffuseColor 1 1 1
+        type 1 0 0
+        texture texture/my_texture/starry_sky.png
+    }
 }
 
 Group {
-    numObjects 10
-    MaterialIndex 0
+    numObjects 13
+    MaterialIndex 1
     Plane {
         normal 1 0 0
         offset 0
@@ -84,7 +91,7 @@ Group {
         normal -1 0 0
         offset -100 
     }
-    MaterialIndex 2
+    MaterialIndex 9
     Plane {
         normal 0 0 1
         offset -10
@@ -94,12 +101,12 @@ Group {
         normal 0 0 -1
         offset -300
     }
-    MaterialIndex 2
+    MaterialIndex 9
     Plane {
         normal 0 1 0
         offset 0
     }
-    MaterialIndex 2
+    MaterialIndex 9
     Plane {
         normal 0 -1 0
         offset -81.6
@@ -125,6 +132,29 @@ Group {
         center 20 16.5 17
         radius 16.5 
     }
+
+    MaterialIndex 4
+    Transform {
+        Translate 50 60 62.5
+        YRotate 270
+        Sphere {
+            center 0 0 0
+            radius 10
+        }
+    }
+    Transform {
+        Translate 80 60 17
+        YRotate 90
+        Sphere {
+            center 0 0 0
+            radius 10
+        }
+    }
+    Sphere {
+        center 20 60 108
+        radius 10
+    }
+
     MaterialIndex 6
     TriangleMesh {
         obj_file mesh/squareLight.obj

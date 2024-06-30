@@ -11,6 +11,7 @@
 const float NEWTON_EPS = 1e-4;
 const int newton_depth = 20;
 
+// Ref: ver.2021
 class RevSurface : public Object3D {
     Curve* pCurve;
     AABB aabb;
@@ -21,8 +22,7 @@ class RevSurface : public Object3D {
 public:
     RevSurface(Curve* pCurve, Material* material)
         : pCurve(pCurve)
-        , Object3D(material)
-    {
+        , Object3D(material) {
         // Check flat.
         for (const auto& cp : pCurve->getControls()) {
             if (cp.z() != 0.0) {
@@ -36,62 +36,43 @@ public:
 
     ~RevSurface() override { delete pCurve; }
 
-    inline bool intersect(const Ray& r, Hit& h, float tmin) override
-    {
+    inline bool intersect(const Ray& r, Hit& h, float tmin) override {
         return newtonIntersect(r, h);
     }
 
-    bool newtonIntersect(const Ray& r, Hit& h)
-    {
+    bool newtonIntersect(const Ray& r, Hit& h) {
         float t, theta, mu;
-        // 检测射线与包围盒的相交性
-        if (!aabb.intersect(r, t) || t > h.getT())
-            return false; // 检测射线r是否与某个包围盒相交
-        // 检测射线与包围盒的相交性
-        getUV(r, t, theta, mu); // 计算射线与曲线的参数值theta和mu。
+        // 1. 检测射线 r 是否与某个包围盒相交
+        if (!aabb.intersect(r, t) || t > h.getT()) return false;
+        // 2. 计算射线与曲线的参数值 theta 和 mu
+        getUV(r, t, theta, mu);
         Vector3f normal, point;
-        // 利用牛顿迭代法求交点和法线
-        if (!newton(r, t, theta, mu, normal, point)) {
-            return false;
-        }
-        // 检查参数值的有效性
-        if (!isnormal(mu) || !isnormal(theta) || !isnormal(t))
-            return false;
-        if (t < 0 || mu < pCurve->range[0] || mu > pCurve->range[1] || t > h.getT())
-            return false;
-        // cout << "mu: " << mu << " theta: " << theta << " t: " << t << endl;
-        // 设置Hit对象的属性
-        // material->getColor(theta / (2 * M_PI), mu).print();
-        h.set(t, material, normal.normalized(),
-            material->getColor(theta / (2 * M_PI), mu), point);
+        // 3. 利用牛顿迭代法求交点和法线
+        if (!newton(r, t, theta, mu, normal, point)) return false;
+        // 4. 检查参数值的有效性
+        if (!isnormal(mu) || !isnormal(theta) || !isnormal(t)) return false;
+        if (t < 0 || mu < pCurve->range[0] || mu > pCurve->range[1] || t > h.getT()) return false;
+        // 5. 设置 Hit 对象的属性
+        h.set(t, material, normal.normalized(), material->getColor(theta / (2 * M_PI), mu), point);
         return true;
     }
 
     bool newton(const Ray& r, float& t, float& theta, float& mu,
-        Vector3f& normal, Vector3f& point)
-    { // 牛顿迭代法 theta:位置参数 [0,2\pi] mu:位置比例 [0,1]
+        Vector3f& normal, Vector3f& point) { // 牛顿迭代法 theta:位置参数 [0,2\pi] mu:位置比例 [0,1]
         // 求解交点和法线
         Vector3f dmu, dtheta;
         for (int i = 0; i < newton_depth; ++i) {
-            // 规范化角度
-            if (theta < 0.0)
-                theta += 2 * M_PI;
-            if (theta >= 2 * M_PI)
-                theta = fmod(theta, 2 * M_PI);
-            // 限制参数范围
-            if (mu >= 1)
-                mu = 1.0 - FLT_EPSILON;
-            if (mu <= 0)
-                mu = FLT_EPSILON;
-            // 计算交点和切向量
+            // 1. 规范化参数
+            normalize(theta, mu);
+            // 2. 计算交点和切向量
             point = getPoint(theta, mu, dtheta, dmu);
             Vector3f f = r.getOrigin() + r.getDirection() * t - point;
             float dist2 = f.squaredLength();
             normal = Vector3f::cross(dmu, dtheta);
             if (dist2 < NEWTON_EPS)
                 return true;
-            // 牛顿迭代更新参数
-            
+
+            // 3. 更新牛顿迭代法参数
             float D = Vector3f::dot(r.getDirection(), normal);
             t -= Vector3f::dot(dmu, Vector3f::cross(dtheta, f)) / D;
             mu -= Vector3f::dot(r.getDirection(), Vector3f::cross(dtheta, f)) / D;
@@ -108,9 +89,9 @@ public:
     }
 
     Vector3f getPoint(const float& theta, const float& mu, Vector3f& dtheta,
-        Vector3f& dmu)
-    {
-        //根据给定的参数值theta和mu，计算参数曲面上对应点的位置，并计算该点处的切向量关于theta和mu的偏导数。
+        Vector3f& dmu) {
+        // 由 theta 和 mu 计算参数曲面上对应点的位置，
+        // 并计算该点处的切向量关于 theta 和 mu 的偏导数。
         Vector3f pt;
         Quat4f rot;
         rot.setAxisAngle(theta, Vector3f::UP);
@@ -125,6 +106,15 @@ public:
         dmu = rotMat * cp.T;
         dtheta = Vector3f(-cp.V.x() * sin(theta), 0, -cp.V.x() * cos(theta));
         return pt;
+    }
+
+    void normalize(float& theta, float& mu) {
+        // 将角度角度规范化到 [0, 2 * pi]
+        if (theta < 0.0) theta += 2 * M_PI;
+        else if (theta >= 2 * M_PI) theta = fmod(theta, 2 * M_PI);
+        // 限制参数范围
+        if (mu >= 1) mu = 1.0 - FLT_EPSILON;
+        if (mu <= 0) mu = FLT_EPSILON;
     }
 
 };

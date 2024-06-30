@@ -3,7 +3,6 @@
 
 #define minf(a, b) (((a) < (b)) ? (a) : (b))
 #define maxf(a, b) (((a) > (b)) ? (a) : (b))
-#define clampCos(x) ((x > 1) ? 1 : ((x < -1) ? -1 : x))
 #define EPSILON 1e-5f  // 用于分母中以确保不会发生除以零的操作
 
 // Original (效果一般，后来参考了网上代码，实现在 Material 中)

@@ -9,8 +9,8 @@ PerspectiveCamera {
 
 Lights {
     numLights 1
-    PointLight {
-        position 50 80.4 71.6
+    DirectionalLight {
+        direction -0.5 -0.3 -1
         color 0.9 0.9 0.9 
     }
 }
@@ -20,51 +20,54 @@ Background {
 }
 
 Materials {
-    numMaterials 7
+    numMaterials 8
     Material { 
         diffuseColor 0.75 0.25 0.25
-        type 1 0 0
+        type 0 1 0
     }
     Material { 
         diffuseColor 0.25 0.25 0.75 
         type 1 0 0
     }
     Material { 
-        diffuseColor 0.75 0.75 0.75
+        diffuseColor 0.75 0.75 0.75 
         type 1 0 0
     }
     Material { 
-        diffuseColor 0.0 0.0 0.0
+        diffuseColor 1 1 1
         type 1 0 0
     }
     Material {
-        diffuseColor 0.999 0.999 0.999
+        diffuseColor 1 1 1
         type 0 1 0
     }
     Material {
-        diffuseColor 0.999 0.999 0.999
+        diffuseColor 1 1 1
         type 0 0 1
         refractRate 1.5
     }
     Material {
         diffuseColor 0 0 0
-        specularColor 1 1 1
+        emission 24 24 24
         type 1 0 0
-        emission 12 12 12
+    }
+    Material {
+        diffuseColor 0.69 0.48 0.38
+        type 1 0 0
+        texture texture/ball.jpg
     }
 }
 
 Group {
-    numObjects 9
+    numObjects 11
     MaterialIndex 0
     Plane {
         normal 1 0 0
         offset 1
     }
     MaterialIndex 1
-    Plane {
-        normal -1 0 0
-        offset -99
+    TriangleMesh {
+        obj_file mesh/square.obj
     }
     MaterialIndex 2
     Plane {
@@ -86,22 +89,36 @@ Group {
         normal 0 -1 0
         offset -81.6
     }
-    MaterialIndex 4
-    Sphere {
-        center 27 16.5 47
-        radius 16.5 
-    }
-
-    MaterialIndex 5
-    Sphere {
-      center 73 16.5 78
-      radius 16.5
-    }
-
     MaterialIndex 6
+    TriangleMesh {
+        obj_file mesh/squareLight.obj
+    }
+    
+    MaterialIndex 8
     Sphere {
-        center 50 681.33 81.6 
-        radius 600
+        center 14 60 78
+        radius 8
+        velocity 0 0 0
     }
 
+    MaterialIndex 8
+    Sphere {
+        center 38 55 78
+        radius 8
+        velocity 0 4 0
+    }
+
+    MaterialIndex 8
+    Sphere {
+        center 62 40 78
+        radius 8
+        velocity -2 8 0
+    }
+
+    MaterialIndex 8
+    Sphere {
+        center 86 15 78
+        radius 8
+        velocity -4 12 0
+    }
 }

@@ -3,20 +3,14 @@ PerspectiveCamera {
     direction 0 -0.042612 -1
     up 0 1 0
     angle 30
-    width 1000
-    height 1000
-    focalLength 220
-    aperture 6
+    width 650
+    height 650
 }
 
 Lights {
-    numLights 2
-    DirectionalLight {
-        direction -0.5 -0.3 -1
-        color 0.9 0.9 0.9 
-    }
-    DirectionalLight {
-        direction 0.5 0.3 1
+    numLights 1
+    PointLight {
+        position 50 80.4 71.6
         color 0.9 0.9 0.9 
     }
 }
@@ -26,7 +20,7 @@ Background {
 }
 
 Materials {
-    numMaterials 8
+    numMaterials 9
     Material { 
         diffuseColor 0.75 0.25 0.25
         type 1 0 0
@@ -40,15 +34,15 @@ Materials {
         type 1 0 0
     }
     Material { 
-        diffuseColor 0.0 0.0 0.0
+        diffuseColor 0.7 0.7 0.7
         type 1 0 0
     }
     Material {
-        diffuseColor 0.999 0.999 0.999
+        diffuseColor 0.7 0.7 0.7
         type 0 1 0
     }
     Material {
-        diffuseColor 0.999 0.999 0.999
+        diffuseColor 0.1 0.1 0.1
         type 0 0 1
         refractRate 1.5
     }
@@ -56,18 +50,19 @@ Materials {
         diffuseColor 0 0 0
         specularColor 1 1 1
         type 1 0 0
-        emission 15 15 15
     }
     Material {
-        diffuseColor 0.999 0.999 0.999
-        type 0 0 1
-        refractRate 1.5
-        texture texture/world_nocloud.jpg
+        diffuseColor 0.7 0.7 0.7
+        type 0 1 0
+    }
+    Material {
+        diffuseColor 0.9 0.9 0.9
+        type 1 0 0
     }
 }
 
 Group {
-    numObjects 10
+    numObjects 6
     MaterialIndex 0
     Plane {
         normal 1 0 0
@@ -99,31 +94,5 @@ Group {
         offset -81.6
     }
 
-    MaterialIndex 4
-    Transform {
-        Translate 50 16.5 62.5
-        YRotate 270
-        Sphere {
-            center 0 0 0
-            radius 16.5
-        }
-    }
-    Transform {
-        Translate 80 16.5 108
-        YRotate 90
-        Sphere {
-            center 0 0 0
-            radius 16.5
-        }
-    }
-    MaterialIndex 5
-    Sphere {
-        center 20 16.5 17
-        radius 16.5 
-    }
 
-    MaterialIndex 6
-    TriangleMesh {
-        obj_file mesh/squareLight.obj
-    }
 }

@@ -94,6 +94,7 @@ public:
         Ray ray(this->center + horizontal * dx - up * dy, dir);
         return ray;
     }
+    
 
 private:
     // Perspective intrinsics

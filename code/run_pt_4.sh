@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-SAMPLES=1
+SAMPLES=5
 SAMPLES1000=1000
 SAMPLES500=500
 SAMPLES200=200
@@ -12,7 +12,7 @@ cmake --build build
 mkdir -p output
 
 # build/PA1 testcases/scene08_smallpt.txt output/scene08.bmp $METHOD $SAMPLES
-# build/PA1 testcases/scene08_smallpt_square.txt output/scene08_square.bmp $METHOD $SAMPLES
+# build/PA1 testcases/scene08_smallpt_square.txt output/scene08_square15.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene10_smallpt_square.txt output/scene10_square.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene11_box.txt output/scene11_box.bmp $METHOD $
 # build/PA1 testcases/scene13_star.txt output/scene13_star.bmp $METHOD $SAMPLES
@@ -27,7 +27,7 @@ mkdir -p output
 # build/PA1 testcases/scene19_bunny_texture.txt output/scene19_bunny_texture.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene20_bunny_bump.txt output/20_bunny_bump.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene21_bunny_star.txt output/scene21_bunny_star.bmp $METHOD $SAMPLES
-# build/PA1 testcases/scene22_cow_texture.txt output/scene22_cow_texture.bmp $METHOD $SAMPLES
+# build/PA1 testcases/scene22_cow_texture.txt output/scene22_cow_texture_20.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene23_dof.txt output/scene23_dof.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene24_dof.txt output/scene24_dof.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene24_dof_0.txt output/scene24_dof_0.bmp $METHOD $SAMPLES
@@ -40,8 +40,8 @@ mkdir -p output
 # build/PA1 testcases/scene31_norm.txt output/scene31_norm_2.bmp $METHOD $SAMPLES 
 # build/PA1 testcases/scene32_norm.txt output/scene32_norm.bmp $METHOD $SAMPLES 
 # build/PA1 testcases/scene33_vase.txt output/scene33_vase.bmp $METHOD $SAMPLES 
-# build/PA1 testcases/scene33_kitten.txt output/scene33_kitten.bmp $METHOD $SAMPLES200 
+build/PA1 testcases/scene33_kitten.txt output/scene33_kitten_5.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene24_dof.txt output/scene24_dof.bmp $METHOD $SAMPLES500
 # build/PA1 testcases/scene34_move.txt output/scene34_move.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene35.txt output/scene35.bmp $METHOD $SAMPLES
-build/PA1 testcases/scene41.txt output/scene41.bmp $METHOD $SAMPLES
+# build/PA1 testcases/scene41.txt output/scene41.bmp $METHOD $SAMPLES

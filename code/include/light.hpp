@@ -12,8 +12,9 @@ public:
     virtual ~Light() = default;
 
     virtual void getIllumination(const Vector3f &p, Vector3f &dir, Vector3f &col) const = 0;
-};
 
+    virtual Vector3f getPosition() { return Vector3f(); };
+};
 
 class DirectionalLight : public Light {
 public:
@@ -60,6 +61,10 @@ public:
         dir = dir / dir.length();
         col = color;
     }
+
+    Vector3f getPosition() const {
+        return position;
+    }   
 
 private:
     Vector3f position;

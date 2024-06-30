@@ -22,7 +22,6 @@
 class Mesh : public Object3D {
 
 public:
-    // TODO: 简化构造函数
     Mesh(const char *filename, Material *m) : Object3D(m) {
         std::ifstream f;                    
         f.open(filename);
@@ -191,7 +190,6 @@ public:
     vector<Object3D *> getFaces() override { return {(Object3D *)this}; }
     double getArea() const override { return area; }
 
-    // TODO: 待删
     std::vector<Vector3f> v;
     std::vector<TriangleIndex> t;
     std::vector<Vector3f> n;

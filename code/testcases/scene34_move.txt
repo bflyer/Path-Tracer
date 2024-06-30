@@ -54,7 +54,7 @@ Materials {
     Material {
         diffuseColor 0.58 0.88 0.82
         type 1 0 0
-        bump texture/rope.jpg
+        bump texture/bump/rope.jpg
     }
     Material {
         diffuseColor 0.69 0.48 0.38

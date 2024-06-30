@@ -11,29 +11,23 @@
 using std::map;
 using std::vector;
 
+#define less(fMin1, bMax, fMax1) (fMin1 < bMax || (fMin1 == bMax && fMin1 == fMax1))
+#define greater(fMax2, bMin, fMin2) (fMax2 > bMin || (fMax2 == bMin && fMax2 == fMin2))
+
 // Ref: ver.2020
 class ObjectKDTreeNode {
 public:
     Vector3f min, max;            // 坐标最小值和最大值
     vector<Object3D*>* faces;     // 子空间物体列表
     ObjectKDTreeNode *l, *r;    // 左右孩子
-                 
+
     bool inside(Object3D* face) {
         Vector3f faceMin = face->min();
         Vector3f faceMax = face->max();
-        // 范围位于包围盒内或者刚好贴在包围盒边缘，都算在包围盒内
-        return (faceMin.x() < max.x() ||
-                faceMin.x() == max.x() && faceMin.x() == faceMax.x()) &&
-               (faceMax.x() > min.x() ||
-                faceMax.x() == min.x() && faceMin.x() == faceMax.x()) &&
-               (faceMin.y() < max.y() ||
-                faceMin.y() == max.y() && faceMin.y() == faceMax.y()) &&
-               (faceMax.y() > min.y() ||
-                faceMax.y() == min.y() && faceMin.y() == faceMax.y()) &&
-               (faceMin.z() < max.z() ||
-                faceMin.z() == max.z() && faceMin.z() == faceMax.z()) &&
-               (faceMax.z() > min.z() ||
-                faceMax.z() == min.z() && faceMin.z() == faceMax.z());
+        // 范围位于包围盒内、刚好贴在包围盒边缘或横跨包围盒，都算在包围盒内
+        return less(faceMin.x(), max.x(), faceMax.x()) && greater(faceMax.x(), min.x(), faceMin.x()) && 
+               less(faceMin.y(), max.y(), faceMax.y()) && greater(faceMax.y(), min.y(), faceMin.y()) && 
+               less(faceMin.z(), max.z(), faceMax.z()) && greater(faceMax.z(), min.z(), faceMin.z());
     }
 };
 
@@ -49,6 +43,7 @@ class ObjectKDTree {
         p->min = min;
         p->max = max;
         Vector3f maxL, minR;  // 左子树最大坐标与右子树最小坐标
+        // 按轴选分界面
         if (axis == 0) {
             maxL = Vector3f((p->min.x() + p->max.x()) / 2, p->max.y(), p->max.z());
             minR = Vector3f((p->min.x() + p->max.x()) / 2, p->min.y(), p->min.z());

@@ -48,7 +48,7 @@ Materials {
     Material { 
         diffuseColor 0.9 0.8 0.8
         type  1 0 0
-        bump texture/paper.png
+        bump texture/bump/paper.png
     }
     Material {
         diffuseColor 0 0 0

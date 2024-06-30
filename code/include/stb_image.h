@@ -1,4 +1,4 @@
-// Ref: ver.2020
+// Ref: ver.2020(完全照搬)
 /* stb_image - v2.25 - public domain image loader - http://nothings.org/stb
                                   no warranty implied; use at your own risk
 

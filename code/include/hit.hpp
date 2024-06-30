@@ -8,7 +8,6 @@
 // Ref: ver.2020
 class Material;
 
-// TODO: 删除 attenuation
 class Hit {
 public:
     // constructors
@@ -16,7 +15,6 @@ public:
         : material(nullptr),
             t(INF),
             r2(INIT_RADIUS),
-            attenuation(Vector3f(1.0)),
             normal(Vector3f::ZERO),
             flux(Vector3f::ZERO),
             fluxLight(Vector3f::ZERO),
@@ -28,7 +26,6 @@ public:
         : material(m),
             t(_t),
             r2(INIT_RADIUS),
-            attenuation(Vector3f(1.0)),
             normal(n),
             flux(Vector3f::ZERO),
             fluxLight(Vector3f::ZERO),
@@ -40,7 +37,6 @@ public:
         : material(h.material),
             t(h.t),
             r2(INIT_RADIUS),
-            attenuation(Vector3f(1.0)),
             normal(h.normal),
             flux(Vector3f::ZERO),
             fluxLight(Vector3f::ZERO),
@@ -74,7 +70,7 @@ private:
     float r2;                
     Material *material;     // 交点处的材质属性
     Vector3f normal;        // 交点处的法线
-    Vector3f color, flux, fluxLight, attenuation;  // 颜色、光通量、光源发出的光通量，光强衰减因子
+    Vector3f color, flux, fluxLight;  // 颜色、光通量、光源发出的光通量
     Vector3f dir, p;        // 交点处的入射方向、交点位置
 };
 

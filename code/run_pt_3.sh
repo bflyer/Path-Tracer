@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-SAMPLES=5
+SAMPLES=50
 SAMPLES1000=1000
 SAMPLES500=500
 SAMPLES200=10
@@ -29,7 +29,7 @@ mkdir -p output
 # build/PA1 testcases/scene21_bunny_star.txt output/scene21_bunny_star.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene22_cow_texture.txt output/scene22_cow_texture.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene23_dof.txt output/scene23_dof.bmp $METHOD $SAMPLES
-# build/PA1 testcases/scene24_dof.txt output/scene24_dof.bmp $METHOD $SAMPLES500
+build/PA1 testcases/scene24_dof.txt output/scene24_dof2.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene24_dof_0.txt output/scene24_dof_0.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene25_glossy.txt output/scene25_glossy.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene26_wineglass.txt output/scene26_wineglass.bmp $METHOD $SAMPLES
@@ -41,6 +41,7 @@ mkdir -p output
 # build/PA1 testcases/scene32_norm.txt output/scene32_norm.bmp $METHOD $SAMPLES 
 # build/PA1 testcases/scene33_vase.txt output/scene33_vase.bmp $METHOD $SAMPLES 
 # build/PA1 testcases/scene33_kitten.txt output/scene33_kitten.bmp $METHOD $SAMPLES200 
+# build/PA1 testcases/scene34_move.txt output/scene34_move.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene24_dof.txt output/scene24_dof.bmp $METHOD $SAMPLES500
-build/PA1 testcases/scene36_hall_of_fame2.txt output/scene36_hall_of_fame2.bmp $METHOD $SAMPLES
+# build/PA1 testcases/scene36_hall_of_fame2.txt output/scene36_hall_of_fame_5.bmp $METHOD $SAMPLES
 # build/PA1 testcases/scene38.txt output/scene38.bmp $METHOD $SAMPLES

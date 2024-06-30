@@ -1,6 +1,6 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
-// Ref: ver.2020
+// Ref: ver.2023
 #include <string>
 
 #include <vecmath.h>
@@ -13,8 +13,6 @@ struct Texture {  // 纹理
     // 由 (u, v) 坐标获取颜色
     Vector3f getColor(float u, float v) const;
     Vector3f getColor(int u, int v) const;
-    // 由索引 idx 获取颜色
-    Vector3f getColor(int idx) const;
 
     // 获取扰动
     float getDisturb(float u, float v, Vector2f &grad) const;
